@@ -852,78 +852,46 @@ function initVibrationFeedback() {
  * Optimized fast click implementation to reduce tap delay on mobile
  */
 function initFastClick() {
-  // Track touch start position to differentiate between taps and scrolls
-  let touchStartY = 0;
-  let touchStartX = 0;
-  let touchStartTime = 0;
-  let isDragging = false;
+  // We'll completely revise this function to be less intrusive
+  // This will eliminate the interference with normal scrolling behavior
   
-  document.addEventListener('touchstart', e => {
-    // Record starting position and time
-    touchStartY = e.touches[0].clientY;
-    touchStartX = e.touches[0].clientX;
-    touchStartTime = Date.now();
-    isDragging = false;
-  }, { passive: true });
+  // Instead of tracking touch events aggressively, we'll make a simpler version
+  // that doesn't interfere with scrolling
   
-  // Add touchmove detection to identify scroll intent
-  document.addEventListener('touchmove', e => {
-    if (!isDragging) {
-      // Calculate movement distance
-      const touchMoveY = e.touches[0].clientY;
-      const touchMoveX = e.touches[0].clientX;
-      const deltaY = Math.abs(touchMoveY - touchStartY);
-      const deltaX = Math.abs(touchMoveX - touchStartX);
+  // Use a small threshold for distinguishing taps from scrolls
+  const tapThreshold = 10; // pixels
+  const timeThreshold = 300; // milliseconds
+  
+  // We'll only apply fastClick to specific elements that need it
+  const fastClickElements = document.querySelectorAll('a.btn, button:not(.service)');
+  
+  fastClickElements.forEach(element => {
+    let touchStartY = 0;
+    let touchStartX = 0;
+    let touchStartTime = 0;
+    
+    element.addEventListener('touchstart', e => {
+      touchStartY = e.touches[0].clientY;
+      touchStartX = e.touches[0].clientX;
+      touchStartTime = Date.now();
+    }, { passive: true }); // Keep passive to avoid blocking scrolling
+    
+    element.addEventListener('touchend', e => {
+      const touchEndY = e.changedTouches[0].clientY;
+      const touchEndX = e.changedTouches[0].clientX;
+      const deltaY = Math.abs(touchEndY - touchStartY);
+      const deltaX = Math.abs(touchEndX - touchStartX);
+      const touchDuration = Date.now() - touchStartTime;
       
-      // If movement exceeds threshold, mark as dragging (scrolling)
-      if (deltaY > 10 || deltaX > 10) {
-        isDragging = true;
+      // Only consider this a tap if movement was minimal and duration was short
+      if (deltaY < tapThreshold && deltaX < tapThreshold && touchDuration < timeThreshold) {
+        // For links, let the browser handle navigation naturally
+        // This prevents our custom code from interfering with normal link behavior
       }
-    }
-  }, { passive: true });
+    }, { passive: true }); // Keep passive to allow default behavior
+  });
   
-  // Use event delegation for efficiency
-  document.addEventListener('touchend', e => {
-    // Calculate time and movement distance
-    const touchEndTime = Date.now();
-    const touchDuration = touchEndTime - touchStartTime;
-    const touchEndY = e.changedTouches[0].clientY;
-    const touchEndX = e.changedTouches[0].clientX;
-    const deltaY = Math.abs(touchEndY - touchStartY);
-    const deltaX = Math.abs(touchEndX - touchStartX);
-    
-    // Consider it a scroll if:
-    // 1. We detected dragging OR
-    // 2. Movement exceeds higher threshold (20px instead of 10px) OR
-    // 3. Touch duration is longer than 300ms (indicating a hold, not a tap)
-    if (isDragging || deltaY > 20 || deltaX > 20 || touchDuration > 300) {
-      return;
-    }
-    
-    // Only process relevant interactive elements, but exclude service cards (handle those separately)
-    const target = e.target.closest('a, button, .btn');
-    if (!target || target.closest('.service')) return;
-    
-    e.preventDefault();
-    
-    if (target.tagName === 'A' && target.getAttribute('href')) {
-      const href = target.getAttribute('href');
-      
-      if (href.startsWith('#')) {
-        // Handle in-page navigation
-        const targetElement = document.querySelector(href);
-        if (targetElement) {
-          utils.smoothScrollTo(targetElement, 800);
-        }
-      } else {
-        // Handle external navigation
-        window.location.href = href;
-      }
-    } else {
-      // Trigger click for other elements
-      target.click();
-    }
-  }, { passive: false });
+  console.log('Fixed FastClick initialized');
 }
 
 /**
@@ -960,40 +928,43 @@ function optimizeImagesForMobile() {
 /**
  * Enhanced touch interactions
  */
+// Fix the initTouchInteractions function to be less aggressive
 function initTouchInteractions() {
+  // Only initialize the ripple effect and avoid any gestures
+  // that might interfere with scrolling
   initRippleEffect();
-  initTouchGestures();
+  
+  // Remove initTouchGestures() call as it was causing issues
 }
 
 /**
  * Optimized ripple effect for touch feedback
  */
+// Fix the ripple effect to not interfere with scrolling
 function initRippleEffect() {
   // Use event delegation for all ripple elements
-  document.addEventListener('touchstart', e => {
+  document.addEventListener('click', e => {
     const target = e.target.closest('.ripple');
     if (!target) return;
-    
-    e.preventDefault();
-    
-    // Remove existing ripples
-    target.querySelectorAll('.ripple-effect').forEach(ripple => ripple.remove());
     
     // Create ripple with optimized calculations
     const ripple = document.createElement('span');
     ripple.classList.add('ripple-effect');
     
     const rect = target.getBoundingClientRect();
-    const touchX = e.touches[0].clientX - rect.left;
-    const touchY = e.touches[0].clientY - rect.top;
+    
+    // Use click coordinates instead of touch coordinates
+    const rippleX = e.clientX - rect.left;
+    const rippleY = e.clientY - rect.top;
+    
     const size = Math.max(rect.width, rect.height) * 2;
     
     // Apply styles
     ripple.style.cssText = `
       width: ${size}px;
       height: ${size}px;
-      left: ${touchX - size/2}px;
-      top: ${touchY - size/2}px;
+      left: ${rippleX - size/2}px;
+      top: ${rippleY - size/2}px;
     `;
     
     target.appendChild(ripple);
@@ -1004,18 +975,7 @@ function initRippleEffect() {
         target.removeChild(ripple);
       }
     }, 600);
-  }, { passive: false });
-  
-  // Prevent ghost clicks on interactive elements
-  document.addEventListener('touchend', e => {
-    const target = e.target.closest('.ripple');
-    if (!target) return;
-    
-    // Let browser handle links and buttons normally
-    if (['A', 'BUTTON'].includes(target.tagName)) return;
-    
-    e.preventDefault();
-  }, { passive: false });
+  });
 }
 
 /**
@@ -1180,7 +1140,6 @@ function initSectionTracking() {
 /**
  * Initialize service modals for clickable service cards and footer links
  */
-// Replace your current initServiceModals() function with this improved version
 function initServiceModals() {
   const services = utils.getAll('.service');
   
@@ -1248,7 +1207,7 @@ function initServiceModals() {
         // Show modal with service details
         showServiceModal(title, icon, getServiceContent(title), serviceType);
       }
-    }, { passive: false });
+    }, { passive: true }); // Changed to passive: true to allow scrolling
     
     // Keep regular click for desktop
     service.addEventListener('click', (e) => {
@@ -1263,22 +1222,19 @@ function initServiceModals() {
     });
   });
   
-  // Add event listeners to footer service links
+  // Add event listeners to footer service links - THIS IS THE FIX FOR FOOTER LINKS
   const footerServiceLinks = utils.getAll('.footer-col:nth-child(2) a');
   footerServiceLinks.forEach((link, index) => {
-    // Combined handler function
-    const handleServiceLinkActivation = (e) => {
+    // FIX: Create a simple click handler that works on all devices
+    link.addEventListener('click', function(e) {
       e.preventDefault();
-      e.stopPropagation();
       
-      const serviceTitle = link.textContent.trim();
+      const serviceTitle = this.textContent.trim();
       const serviceType = index % 2 === 0 ? 'primary' : 'secondary';
       const iconClass = getIconClassForService(serviceTitle);
       
       showServiceModal(serviceTitle, iconClass, getServiceContent(serviceTitle), serviceType);
-    };
-    
-    utils.on(link, 'click', handleServiceLinkActivation);
+    });
   });
   
   // Helper function to get icon class based on service title
@@ -1327,10 +1283,10 @@ function initServiceModals() {
     const contactBtn = modal.querySelector('.modal-footer .btn');
     
     // Add event listeners
-    utils.on(closeBtn, 'click', closeModal);
+    closeBtn.addEventListener('click', closeModal);
     
     // FIX for contact button - ensure modal closes before scrolling
-    utils.on(contactBtn, 'click', (e) => {
+    contactBtn.addEventListener('click', (e) => {
       e.preventDefault();
       
       // First get reference to contact section
@@ -1344,34 +1300,16 @@ function initServiceModals() {
         if (contactSection) {
           utils.smoothScrollTo(contactSection, 800);
         }
-      }, 400); // Increased from 300ms to 400ms
-    });
-    
-    // Add touchend handler for better mobile experience
-    utils.on(contactBtn, 'touchend', (e) => {
-      e.preventDefault();
-      
-      // First get reference to contact section  
-      const contactSection = utils.get('#contact');
-      
-      // Close modal first - fully
-      closeModal();
-      
-      // Use a longer timeout to ensure modal is fully closed
-      setTimeout(() => {
-        if (contactSection) {
-          utils.smoothScrollTo(contactSection, 800);
-        }
-      }, 400); // Increased from 300ms to 400ms
+      }, 400);
     });
     
     // Close on click outside modal content
-    utils.on(modal, 'click', (e) => {
+    modal.addEventListener('click', (e) => {
       if (e.target === modal) closeModal();
     });
     
     // Close on ESC key
-    utils.on(document, 'keydown', (e) => {
+    document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeModal();
     });
     
@@ -1380,9 +1318,6 @@ function initServiceModals() {
       modal.classList.add('active');
       document.body.style.overflow = 'hidden'; // Prevent background scrolling
     }, 10);
-    
-    // Add ripple effect to buttons
-    initRippleEffect();
     
     // Function to close modal
     function closeModal() {
@@ -1399,8 +1334,7 @@ function initServiceModals() {
     }
   }
   
-  // KEEP YOUR EXISTING getServiceContent FUNCTION EXACTLY AS IS
-  // Function to get content for each service
+  // Keep the existing getServiceContent function
   function getServiceContent(serviceTitle) {
     const serviceContents = {
       'Projektledning': `
