@@ -250,6 +250,11 @@ function hideLoadingScreen() {
     setTimeout(() => {
       if (loadingScreen.parentNode) {
         loadingScreen.parentNode.removeChild(loadingScreen);
+        
+        // Force buttons to be visible after loading screen is gone
+        document.querySelectorAll('.btn').forEach(btn => {
+          btn.style.opacity = '1';
+        });
       }
     }, 500);
   };
@@ -259,7 +264,7 @@ function hideLoadingScreen() {
   
   // Option 2: Fallback removal after timeout
   // This ensures it's removed even if the load event doesn't fire properly
-  setTimeout(removeLoader, 2000);
+  setTimeout(removeLoader, 2500); // Increased from 2000ms
 }
 
 /**
@@ -275,14 +280,40 @@ function createHeroBackground() {
  * Enhanced navigation with better event delegation
  */
 function initNavigation() {
+  // Get all the necessary elements
   const hamburger = utils.get('.hamburger');
   const navMenu = utils.get('#nav-menu');
   const mobileOverlay = utils.get('.mobile-overlay');
   const navLinks = utils.getAll('.nav-links a');
   
+  // Exit if elements don't exist
   if (!hamburger || !navMenu) return;
   
-  // Toggle mobile navigation
+  // Define the close menu function - this is crucial for fixing the issue
+  const closeMenu = () => {
+    // Check if menu is currently active
+    if (navMenu.classList.contains('active')) {
+      // Remove active class from menu
+      navMenu.classList.remove('active');
+      
+      // Reset hamburger button state
+      hamburger.classList.remove('is-active');
+      hamburger.setAttribute('aria-expanded', 'false');
+      
+      // Re-enable scrolling on body
+      document.body.style.overflow = '';
+      
+      // Hide the overlay if it exists
+      if (mobileOverlay) {
+        mobileOverlay.classList.remove('active');
+      }
+      
+      // Log for debugging (can remove later)
+      console.log('Menu closed');
+    }
+  };
+  
+  // Toggle mobile navigation when hamburger is clicked
   utils.on(hamburger, 'click', () => {
     const isExpanded = hamburger.getAttribute('aria-expanded') === 'true';
     hamburger.setAttribute('aria-expanded', !isExpanded);
@@ -298,25 +329,66 @@ function initNavigation() {
     document.body.style.overflow = isExpanded ? '' : 'hidden';
   });
   
-  // Handle closing mobile menu - event delegation
-  const closeMenu = () => {
-    if (navMenu.classList.contains('active')) {
-      navMenu.classList.remove('active');
-      hamburger.classList.remove('is-active');
-      hamburger.setAttribute('aria-expanded', 'false');
-      document.body.style.overflow = '';
+  // THIS IS THE KEY PART: Ensure each nav link closes the menu when clicked
+  navLinks.forEach(link => {
+    utils.on(link, 'click', (e) => {
+      // Debug log (can remove later)
+      console.log('Nav link clicked:', link.textContent);
       
-      if (mobileOverlay) {
-        mobileOverlay.classList.remove('active');
+      // First, close the menu
+      closeMenu();
+      
+      // Handle anchor links with smooth scrolling
+      const href = link.getAttribute('href');
+      if (href && href.startsWith('#')) {
+        e.preventDefault();
+        const targetElement = document.querySelector(href);
+        if (targetElement) {
+          // Allow a small delay for menu closing animation
+          setTimeout(() => {
+            utils.smoothScrollTo(targetElement, 800);
+          }, 300);
+        }
       }
-    }
-  };
+    });
+    
+    // For mobile, also add a touchend handler specifically
+    utils.on(link, 'touchend', (e) => {
+      // Prevent the event from being processed multiple times
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Debug log (can remove later)
+      console.log('Nav link touched:', link.textContent);
+      
+      // Close the menu first
+      closeMenu();
+      
+      // Handle anchor links with smooth scrolling
+      const href = link.getAttribute('href');
+      if (href && href.startsWith('#')) {
+        const targetElement = document.querySelector(href);
+        if (targetElement) {
+          // Allow a small delay for menu closing animation
+          setTimeout(() => {
+            utils.smoothScrollTo(targetElement, 800);
+          }, 300);
+        }
+      } else if (href && !href.startsWith('#')) {
+        // Navigate to external links after a small delay
+        setTimeout(() => {
+          window.location.href = href;
+        }, 300);
+      }
+    });
+  });
   
-  // Event listeners for closing menu
-  utils.onAll(navLinks, 'click', closeMenu);
-  if (mobileOverlay) utils.on(mobileOverlay, 'click', closeMenu);
+  // Close menu when overlay is clicked
+  if (mobileOverlay) {
+    utils.on(mobileOverlay, 'click', closeMenu);
+  }
   
-  // Handle keyboard accessibility
+  // Handle keyboard accessibility - close menu on Escape key
   utils.on(document, 'keydown', (e) => {
     if (e.key === 'Escape') closeMenu();
   });
@@ -841,8 +913,29 @@ function initVibrationFeedback() {
  * Optimized fast click implementation to reduce tap delay on mobile
  */
 function initFastClick() {
+  // Track touch start position to differentiate between taps and scrolls
+  let touchStartY = 0;
+  let touchStartX = 0;
+  
+  document.addEventListener('touchstart', e => {
+    // Record starting position
+    touchStartY = e.touches[0].clientY;
+    touchStartX = e.touches[0].clientX;
+  }, { passive: true });
+  
   // Use event delegation for efficiency
   document.addEventListener('touchend', e => {
+    // Calculate movement distance
+    const touchEndY = e.changedTouches[0].clientY;
+    const touchEndX = e.changedTouches[0].clientX;
+    const deltaY = Math.abs(touchEndY - touchStartY);
+    const deltaX = Math.abs(touchEndX - touchStartX);
+    
+    // If there was significant movement, consider it a scroll, not a tap (10px threshold)
+    if (deltaY > 10 || deltaX > 10) {
+      return;
+    }
+    
     // Only process relevant interactive elements
     const target = e.target.closest('a, button, .btn, .service');
     if (!target) return;
@@ -1154,8 +1247,10 @@ function initServiceModals() {
   // Add event listeners to footer service links as well
   const footerServiceLinks = utils.getAll('.footer-col:nth-child(2) a');
   footerServiceLinks.forEach((link, index) => {
-    utils.on(link, 'click', (e) => {
+    // Combined handler function to avoid duplicate code
+    const handleServiceLinkActivation = (e) => {
       e.preventDefault();
+      e.stopPropagation(); // Stop propagation to prevent conflicts
       
       // Get service title from the link text
       const serviceTitle = link.textContent.trim();
@@ -1168,7 +1263,11 @@ function initServiceModals() {
       
       // Show modal with service details
       showServiceModal(serviceTitle, iconClass, getServiceContent(serviceTitle), serviceType);
-    });
+    };
+    
+    // Add handlers for both click and touchend events
+    utils.on(link, 'click', handleServiceLinkActivation);
+    utils.on(link, 'touchend', handleServiceLinkActivation);
   });
   
   // Helper function to get icon class based on service title
@@ -1220,8 +1319,12 @@ function initServiceModals() {
     // Add event listeners
     utils.on(closeBtn, 'click', closeModal);
     utils.on(contactBtn, 'click', (e) => {
+      e.preventDefault(); // Prevent default behavior
+      
+      // Close modal first
       closeModal();
-      // Smooth scroll to contact section after a small delay
+      
+      // Then scroll to contact section after modal is gone
       setTimeout(() => {
         const contactSection = utils.get('#contact');
         if (contactSection) utils.smoothScrollTo(contactSection, 800);
