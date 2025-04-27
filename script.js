@@ -742,14 +742,11 @@ function initMobileOptimizations() {
   // Connection quality check
   checkConnection();
   
-  // Swipeable services
-  setupSwipeableServices();
+  // Apply mobile touch fixes
+  initMobileTouchFixes();
   
-  // Touch enhancements
+  // Other mobile optimizations
   initVibrationFeedback();
-  initFastClick();
-  
-  // Image optimizations
   optimizeImagesForMobile();
 }
 
@@ -798,93 +795,35 @@ function setupSwipeableServices() {
   
   if (!servicesGrid || !services.length) return;
   
-  // Touch handling variables
-  let startX, currentX, isDragging = false;
-  const threshold = 50;
-  
-  // Touch event handlers
-  servicesGrid.addEventListener('touchstart', (e) => {
-    startX = e.touches[0].clientX;
-    currentX = startX;
-    isDragging = true;
-    servicesGrid.style.transition = 'none';
-  }, { passive: true });
-  
-  servicesGrid.addEventListener('touchmove', (e) => {
-    if (!isDragging) return;
-    
-    currentX = e.touches[0].clientX;
-    const diffX = currentX - startX;
-    
-    // Get dimensions once
-    const containerWidth = servicesGrid.offsetWidth;
-    const contentWidth = servicesGrid.scrollWidth;
-    const maxScroll = contentWidth - containerWidth;
-    const currentScroll = servicesGrid.scrollLeft;
-    
-    // Apply scroll with edge resistance
-    if ((currentScroll <= 0 && diffX > 0) || (currentScroll >= maxScroll && diffX < 0)) {
-      servicesGrid.scrollLeft = currentScroll - diffX * 0.2; // Resistance
-    } else {
-      servicesGrid.scrollLeft = currentScroll - diffX;
-    }
-    
-    startX = currentX;
-  }, { passive: true });
-  
-  servicesGrid.addEventListener('touchend', () => {
-    isDragging = false;
-    servicesGrid.style.transition = '';
-  }, { passive: true });
-  
-  // Create pagination dots
+  // Get the dots container
   const dotsContainer = utils.get('.swipe-dots');
-  if (dotsContainer) {
-    // Create dots with fragment for performance
-    const fragment = document.createDocumentFragment();
+  
+  // If we're on mobile, simply hide or remove the dots since they're not needed
+  if (isMobile && dotsContainer) {
+    // Option 1: Hide them with CSS
+    dotsContainer.style.display = 'none';
     
-    services.forEach((_, index) => {
-      const dot = document.createElement('span');
-      dot.className = 'swipe-dot';
-      
-      if (index === 0) {
-        dot.classList.add('active');
-      }
-      
-      // Add click functionality to dots
-      dot.addEventListener('click', () => {
-        // Get service width once
-        const service = services[0];
-        const serviceWidth = service.offsetWidth + 
-          parseInt(getComputedStyle(service).marginRight || 0);
-          
-        servicesGrid.scrollTo({
-          left: serviceWidth * index,
-          behavior: 'smooth'
-        });
-      });
-      
-      fragment.appendChild(dot);
-    });
-    
-    // Append all dots at once for performance
-    dotsContainer.appendChild(fragment);
-    
-    // Update dots on scroll - throttled for performance
-    servicesGrid.addEventListener('scroll', utils.throttle(() => {
-      // Calculate active index efficiently
-      const scrollPosition = servicesGrid.scrollLeft;
-      const serviceWidth = services[0].offsetWidth + 
-        parseInt(getComputedStyle(services[0]).marginRight || 0);
-      const activeIndex = Math.round(scrollPosition / serviceWidth);
-      
-      // Update dots with minimal DOM operations
-      dotsContainer.querySelectorAll('.swipe-dot').forEach((dot, index) => {
-        dot.classList.toggle('active', index === activeIndex);
-      });
-    }, 100), { passive: true });
+    // Option 2: Remove them from DOM entirely
+    // If you prefer this approach, uncomment the next line and comment out the style line above
+    // dotsContainer.parentNode.removeChild(dotsContainer);
   }
 }
+
+// Function to initialize all mobile fixes
+function initMobileTouchFixes() {
+  // Update Fast Click implementation
+  initFastClick();
+  
+  // Update Service Cards interaction
+  initServiceModals();
+  
+  // Remove swipe dots
+  setupSwipeableServices();
+  
+  // Add this function to DOMContentLoaded event or where other initializations happen
+  console.log('Mobile touch fixes initialized');
+}
+
 
 /**
  * Add vibration feedback for touch interactions
@@ -916,29 +855,54 @@ function initFastClick() {
   // Track touch start position to differentiate between taps and scrolls
   let touchStartY = 0;
   let touchStartX = 0;
+  let touchStartTime = 0;
+  let isDragging = false;
   
   document.addEventListener('touchstart', e => {
-    // Record starting position
+    // Record starting position and time
     touchStartY = e.touches[0].clientY;
     touchStartX = e.touches[0].clientX;
+    touchStartTime = Date.now();
+    isDragging = false;
+  }, { passive: true });
+  
+  // Add touchmove detection to identify scroll intent
+  document.addEventListener('touchmove', e => {
+    if (!isDragging) {
+      // Calculate movement distance
+      const touchMoveY = e.touches[0].clientY;
+      const touchMoveX = e.touches[0].clientX;
+      const deltaY = Math.abs(touchMoveY - touchStartY);
+      const deltaX = Math.abs(touchMoveX - touchStartX);
+      
+      // If movement exceeds threshold, mark as dragging (scrolling)
+      if (deltaY > 10 || deltaX > 10) {
+        isDragging = true;
+      }
+    }
   }, { passive: true });
   
   // Use event delegation for efficiency
   document.addEventListener('touchend', e => {
-    // Calculate movement distance
+    // Calculate time and movement distance
+    const touchEndTime = Date.now();
+    const touchDuration = touchEndTime - touchStartTime;
     const touchEndY = e.changedTouches[0].clientY;
     const touchEndX = e.changedTouches[0].clientX;
     const deltaY = Math.abs(touchEndY - touchStartY);
     const deltaX = Math.abs(touchEndX - touchStartX);
     
-    // If there was significant movement, consider it a scroll, not a tap (10px threshold)
-    if (deltaY > 10 || deltaX > 10) {
+    // Consider it a scroll if:
+    // 1. We detected dragging OR
+    // 2. Movement exceeds higher threshold (20px instead of 10px) OR
+    // 3. Touch duration is longer than 300ms (indicating a hold, not a tap)
+    if (isDragging || deltaY > 20 || deltaX > 20 || touchDuration > 300) {
       return;
     }
     
-    // Only process relevant interactive elements
-    const target = e.target.closest('a, button, .btn, .service');
-    if (!target) return;
+    // Only process relevant interactive elements, but exclude service cards (handle those separately)
+    const target = e.target.closest('a, button, .btn');
+    if (!target || target.closest('.service')) return;
     
     e.preventDefault();
     
@@ -1216,6 +1180,7 @@ function initSectionTracking() {
 /**
  * Initialize service modals for clickable service cards and footer links
  */
+// Replace your current initServiceModals() function with this improved version
 function initServiceModals() {
   const services = utils.getAll('.service');
   
@@ -1230,49 +1195,94 @@ function initServiceModals() {
     document.body.appendChild(modalContainer);
   }
   
-  // Make entire service cards clickable
+  // Variables to track touch interactions
+  let touchStartY = 0;
+  let touchStartX = 0;
+  let touchStartTime = 0;
+  let isDragging = false;
+  
+  // Make service cards clickable but with better touch handling
   services.forEach((service, index) => {
-    // Add click handler to entire service card
-    utils.on(service, 'click', (e) => {
-      // Get service data
-      const title = service.querySelector('h3').textContent;
-      const icon = service.querySelector('i').className;
-      const serviceType = index % 2 === 0 ? 'primary' : 'secondary';
+    // Track touch start
+    service.addEventListener('touchstart', (e) => {
+      touchStartY = e.touches[0].clientY;
+      touchStartX = e.touches[0].clientX;
+      touchStartTime = Date.now();
+      isDragging = false;
+    }, { passive: true });
+    
+    // Track touch move to detect scrolling intent
+    service.addEventListener('touchmove', (e) => {
+      if (!isDragging) {
+        const touchMoveY = e.touches[0].clientY;
+        const touchMoveX = e.touches[0].clientX;
+        const deltaY = Math.abs(touchMoveY - touchStartY);
+        const deltaX = Math.abs(touchMoveX - touchStartX);
+        
+        // If significant movement, mark as dragging (scrolling)
+        if (deltaY > 10 || deltaX > 10) {
+          isDragging = true;
+        }
+      }
+    }, { passive: true });
+    
+    // Handle touch end - only open modal if it was a tap, not a scroll
+    service.addEventListener('touchend', (e) => {
+      const touchEndTime = Date.now();
+      const touchDuration = touchEndTime - touchStartTime;
+      const touchEndY = e.changedTouches[0].clientY;
+      const touchEndX = e.changedTouches[0].clientX;
+      const deltaY = Math.abs(touchEndY - touchStartY);
+      const deltaX = Math.abs(touchEndX - touchStartX);
       
-      // Show modal with service details
-      showServiceModal(title, icon, getServiceContent(title), serviceType);
+      // Only open the modal if:
+      // 1. Not dragging AND
+      // 2. Movement is small AND
+      // 3. Touch was brief (like a tap)
+      if (!isDragging && deltaY < 20 && deltaX < 20 && touchDuration < 300) {
+        // Get service data
+        const title = service.querySelector('h3').textContent;
+        const icon = service.querySelector('i').className;
+        const serviceType = index % 2 === 0 ? 'primary' : 'secondary';
+        
+        // Show modal with service details
+        showServiceModal(title, icon, getServiceContent(title), serviceType);
+      }
+    }, { passive: false });
+    
+    // Keep regular click for desktop
+    service.addEventListener('click', (e) => {
+      // Only process click if not on a mobile device
+      if (!isMobile) {
+        const title = service.querySelector('h3').textContent;
+        const icon = service.querySelector('i').className;
+        const serviceType = index % 2 === 0 ? 'primary' : 'secondary';
+        
+        showServiceModal(title, icon, getServiceContent(title), serviceType);
+      }
     });
   });
   
-  // Add event listeners to footer service links as well
+  // Add event listeners to footer service links
   const footerServiceLinks = utils.getAll('.footer-col:nth-child(2) a');
   footerServiceLinks.forEach((link, index) => {
-    // Combined handler function to avoid duplicate code
+    // Combined handler function
     const handleServiceLinkActivation = (e) => {
       e.preventDefault();
-      e.stopPropagation(); // Stop propagation to prevent conflicts
+      e.stopPropagation();
       
-      // Get service title from the link text
       const serviceTitle = link.textContent.trim();
-      
-      // Determine service type (alternate between primary/secondary)
       const serviceType = index % 2 === 0 ? 'primary' : 'secondary';
-      
-      // Determine icon class based on service title
       const iconClass = getIconClassForService(serviceTitle);
       
-      // Show modal with service details
       showServiceModal(serviceTitle, iconClass, getServiceContent(serviceTitle), serviceType);
     };
     
-    // Add handlers for both click and touchend events
     utils.on(link, 'click', handleServiceLinkActivation);
-    utils.on(link, 'touchend', handleServiceLinkActivation);
   });
   
   // Helper function to get icon class based on service title
   function getIconClassForService(title) {
-    // Map service titles to their corresponding icon classes
     const iconMap = {
       'Projektledning': 'fas fa-diagram-project',
       'Processutveckling': 'fas fa-cogs',
@@ -1282,7 +1292,7 @@ function initServiceModals() {
       'Digitalisering': 'fas fa-digital-tachograph'
     };
     
-    return iconMap[title] || 'fas fa-briefcase'; // Default icon as fallback
+    return iconMap[title] || 'fas fa-briefcase';
   }
   
   // Function to show the modal
@@ -1318,17 +1328,41 @@ function initServiceModals() {
     
     // Add event listeners
     utils.on(closeBtn, 'click', closeModal);
+    
+    // FIX for contact button - ensure modal closes before scrolling
     utils.on(contactBtn, 'click', (e) => {
-      e.preventDefault(); // Prevent default behavior
+      e.preventDefault();
       
-      // Close modal first
+      // First get reference to contact section
+      const contactSection = utils.get('#contact');
+      
+      // Close modal first - fully
       closeModal();
       
-      // Then scroll to contact section after modal is gone
+      // Use a longer timeout to ensure modal is fully closed
       setTimeout(() => {
-        const contactSection = utils.get('#contact');
-        if (contactSection) utils.smoothScrollTo(contactSection, 800);
-      }, 300);
+        if (contactSection) {
+          utils.smoothScrollTo(contactSection, 800);
+        }
+      }, 400); // Increased from 300ms to 400ms
+    });
+    
+    // Add touchend handler for better mobile experience
+    utils.on(contactBtn, 'touchend', (e) => {
+      e.preventDefault();
+      
+      // First get reference to contact section  
+      const contactSection = utils.get('#contact');
+      
+      // Close modal first - fully
+      closeModal();
+      
+      // Use a longer timeout to ensure modal is fully closed
+      setTimeout(() => {
+        if (contactSection) {
+          utils.smoothScrollTo(contactSection, 800);
+        }
+      }, 400); // Increased from 300ms to 400ms
     });
     
     // Close on click outside modal content
@@ -1365,8 +1399,8 @@ function initServiceModals() {
     }
   }
   
+  // KEEP YOUR EXISTING getServiceContent FUNCTION EXACTLY AS IS
   // Function to get content for each service
-  // Replace these with your actual service descriptions
   function getServiceContent(serviceTitle) {
     const serviceContents = {
       'Projektledning': `
