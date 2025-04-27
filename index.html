@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="sv" class="no-js">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Kapybara - Expertis inom projektledning och processutveckling</title>
+  <meta name="description" content="Kapybara erbjuder expertis inom projektledning, processutveckling och strategisk rådgivning för en hållbar tillväxt." />
+  
+  <!-- Theme color for mobile browsers -->
+  <meta name="theme-color" content="#1e1f26">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <!-- Preconnect for faster resource loading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="manifest" href="site.webmanifest">
+
+  <!-- Critically needed fonts preloaded -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Raleway:wght@300;400;500;600&display=swap" as="style">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Social Meta Tags -->
+  <meta property="og:title" content="Kapybara - Projektledning & Processutveckling">
+  <meta property="og:description" content="Vi hjälper företag att optimera processer och leverera framgångsrika projekt.">
+  <meta property="og:url" content="https://kapybara.com">
+  <meta name="twitter:card" content="summary_large_image">
+  
+  <!-- Critical CSS inline -->
+  <style>
+    /* Critical CSS - essential rendering styles */
+    :root {
+      --dark: #1a1b21;
+      --light: #ffffff;
+      --accent: #e85c42;
+      --secondary-accent: #4a8b9f;
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html {
+      font-size: 17px;
+      scroll-behavior: smooth;
+    }
+    
+    body {
+      font-family: 'Raleway', sans-serif;
+      color: var(--dark);
+      background-color: var(--light);
+      line-height: 1.8;
+      opacity: 0;
+      animation: fadeInBody 0.8s ease forwards;
+      font-weight: 400;
+      font-size: 1.0625rem;
+    }
+    
+    .container {
+      max-width: 1200px;
+      padding: 0 2rem;
+      margin: 0 auto;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Playfair Display', serif;
+      line-height: 1.3;
+      letter-spacing: -0.02em;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+    }
+    
+    h1 {
+      font-size: 3.75rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+    
+    p {
+      margin-bottom: 1.25rem;
+      line-height: 1.8;
+    }
+    
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: var(--transition);
+      position: relative;
+    }
+    
+    /* Loading screen - critical for user experience */
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--dark);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    
+    .loading-screen.loaded {
+      opacity: 0;
+      visibility: hidden;
+    }
+    
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      border-top-color: var(--accent);
+      border-right-color: var(--secondary-accent);
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 1rem;
+    }
+    
+    .loading-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      color: var(--light);
+      animation: pulse 2s ease infinite;
+      letter-spacing: 1px;
+    }
+    
+    .loading-logo span {
+      color: var(--accent);
+    }
+    
+    /* Navigation - critical for initial viewport */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 2rem;
+      background: transparent;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      transition: var(--transition);
+    }
+    
+    nav.scrolled {
+      background: var(--dark);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      padding: 1rem 2rem;
+    }
+    
+    .logo a {
+      position: relative;
+      display: inline-block;
+      padding: 0;
+      text-decoration: none;
+      font-family: 'Playfair Display', serif;
+      font-weight: bold;
+      font-size: 1.5rem;
+      color: var(--light);
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 2.5rem;
+    }
+    
+    .nav-links a {
+      text-decoration: none;
+      color: var(--light);
+      font-weight: 500;
+      transition: var(--transition);
+      position: relative;
+      padding: 0.5rem 0;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Hero section - critical for initial viewport */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 0;
+      margin: 0;
+      height: 100vh;
+      box-sizing: border-box;
+    }
+    
+    .hero-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 130%;
+      z-index: -1;
+      background: linear-gradient(135deg, #2c3e50 0%, #4a5f72 40%, var(--accent) 100%);
+      overflow: hidden;
+    }
+    
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto;
+      color: var(--light);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      align-items: center;
+      padding-top: 4rem;
+      padding-bottom: 2rem;
+    }
+    
+    .hero h1 {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      margin-bottom: 0.5rem;
+      animation: slideUp 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+      opacity: 0;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .hero p {
+      font-size: clamp(1.1rem, 3vw, 1.3rem);
+      margin-bottom: 1rem;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      animation: slideUp 1s cubic-bezier(0.19, 1, 0.22, 1) 0.2s forwards;
+      opacity: 0;
+      font-weight: 300;
+      line-height: 1.6;
+    }
+    
+    /* Button - critical for calls to action */
+    .btn {
+      padding: 1rem 2.5rem;
+      border: none;
+      color: var(--light);
+      background: linear-gradient(135deg, var(--accent) 0%, #ff6e5a 100%);
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-size: 0.9375rem;
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      box-shadow: 0 8px 15px rgba(255, 119, 94, 0.2);
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 3.5rem;
+      opacity: 0;
+      animation: fadeIn 1s ease 0.4s forwards;
+    }
+    
+    .btn-secondary {
+      background: linear-gradient(135deg, var(--secondary-accent) 0%, #5da1b5 100%);
+      box-shadow: 0 8px 15px rgba(93, 158, 179, 0.2);
+    }
+    
+    .btn i {
+      margin-right: 0.5rem;
+      font-size: 1.1em;
+    }
+    
+    /* Hamburger - critical for mobile navigation */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      z-index: 1001;
+      background: rgba(30, 31, 38, 0.5);
+      backdrop-filter: blur(10px);
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      width: 45px;
+      height: 45px;
+      transition: var(--transition);
+    }
+    
+    .hamburger span {
+      width: 24px;
+      height: 2px;
+      background: var(--light);
+      border-radius: 2px;
+      transition: var(--transition);
+      margin-bottom: 3px;
+    }
+    
+    /* Essential animations */
+    @keyframes fadeInBody {
+      to { opacity: 1; }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Mobile responsive adjustments - critical for viewport sizing */
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 1.5rem;
+      }
+      
+      body {
+        font-size: 16px;
+      }
+      
+      h1 {
+        font-size: clamp(2rem, 8vw, 2.8rem);
+      }
+      
+      .hero {
+        padding: 7rem 1rem 5rem;
+        min-height: 85vh;
+      }
+      
+      .hamburger {
+        display: flex;
+      }
+      
+      .nav-links {
+        position: fixed;
+        flex-direction: column;
+        background: var(--dark);
+        top: 0;
+        right: -100%;
+        width: 75%;
+        height: 100vh;
+        padding: 100px 2rem 2rem;
+        transition: right 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.15);
+        z-index: 999;
+      }
+      
+      .nav-links.active {
+        right: 0;
+      }
+      
+      .nav-links li {
+        margin: 0;
+        width: 100%;
+      }
+      
+      .nav-links a {
+        font-size: 1.2rem;
+        display: block;
+        padding: 18px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        width: 100%;
+      }
+    }
+  </style>
+  
+  <!-- Main CSS with non-render blocking loading -->
+  <link rel="stylesheet" href="style.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="style.css"></noscript>
+  
+  <!-- Optimized Font Awesome loading with preload -->
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/fontawesome.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/solid.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/brands.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/fontawesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/solid.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/brands.min.css">
+  </noscript>
+  
+  <!-- Deferred JavaScript loading -->
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <!-- Loading screen for initial page load -->
+  <div class="loading-screen">
+    <div class="loading-spinner"></div>
+    <div class="loading-logo">Kapyba<span>ra</span></div>
+  </div>
+
+  <div id="scroll-progress" aria-hidden="true"></div>
+  
+  <!-- Mobile overlay for menu background -->
+  <div class="mobile-overlay"></div>
+  
+  <header>
+    <nav role="navigation">
+      <!-- Updated logo HTML structure -->
+      <div class="logo">
+        <a href="#home" data-text="Kapybara">Kapybara</a>
+      </div>
+      
+      <button class="hamburger ripple" aria-label="Meny" aria-expanded="false" aria-controls="nav-menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="nav-menu">
+        <li><a href="#home" class="ripple">Hem</a></li>
+        <li><a href="#about" class="ripple">Om oss</a></li>
+        <li><a href="#services" class="ripple">Tjänster</a></li>
+        <li><a href="#contact" class="ripple">Kontakt</a></li>
+      </ul>
+    </nav>
+    
+    <section id="home" class="hero">
+      <div class="hero-background" aria-hidden="true">
+        <!-- Enhanced dynamic background with patterns -->
+      </div>
+      <div class="hero-content">
+        <h1>Vi hjälper er att lyckas</h1>
+        <p>Kapybara erbjuder expertis inom projektledning, processutveckling och strategisk rådgivning för en hållbar tillväxt som tar ditt företag till nästa nivå.</p>
+        <div class="hero-buttons">
+          <a href="#contact" class="btn ripple" aria-label="Gå till kontakt">
+            <i class="fas fa-envelope"></i> Kontakta oss
+          </a>
+          <a href="#services" class="btn btn-secondary ripple" aria-label="Visa tjänster">
+            <i class="fas fa-arrow-down"></i> Våra tjänster
+          </a>
+        </div>
+      </div>
+      <div class="scroll-hint" aria-hidden="true">
+        <i class="fas fa-chevron-down"></i>
+        <span>Utforska mer</span>
+      </div>
+    </section>
+  </header>
+
+  <!-- Wave divider after hero section -->
+  <div class="divider divider-wave"></div>
+
+  <main id="main">
+    <section id="about">
+      
+      <div class="container">
+        <h2>Om oss</h2>
+        <div class="section-intro">
+          <p>Kapybara är en engagerad konsult med expertis inom projektledning och processutveckling. Målet är att hjälpa företag att optimera sina processer och leverera framgångsrika projekt.</p>
+        </div>
+        
+        <div class="about-content">
+          <div class="about-text">
+            <p>Vi grundades med visionen att göra avancerad projektledning tillgängligt för företag i alla storlekar.</p>
+            <p>Vår filosofi bygger på tre grundpelare: <span class="highlight">kvalitet</span>, <span class="highlight secondary">effektivitet</span> och <span class="highlight">innovation</span>. Med dessa värderingar som grund arbetar vi varje dag för att leverera mervärde till våra kunder.</p>
+            <a href="#contact" class="btn btn-secondary ripple">Samarbeta med oss</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slant divider after about section -->
+    <div class="divider divider-slant"></div>
+
+    <section id="services">
+
+      <div class="container">
+        <h2>Våra tjänster</h2>
+        <div class="section-intro">
+          <p>Vi erbjuder ett brett spektrum av tjänster för att möta dina behov inom projektledning, processutveckling och affärsutveckling.</p>
+        </div>
+        
+        <div class="services-grid swipe-container">
+          <div class="service swipe-item ripple" data-delay="0">
+            <i class="fas fa-diagram-project" aria-hidden="true"></i>
+            <h3>Projektledning</h3>
+            <p>Vi säkerställer att dina projekt genomförs effektivt och framgångsrikt med beprövade metoder och verktyg.</p>
+            <div class="service-more">
+              <span>Läs mer</span>
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </div>
+          
+          <div class="service swipe-item ripple" data-delay="1">
+            <i class="fas fa-cogs" aria-hidden="true"></i>
+            <h3>Processutveckling</h3>
+            <p>Vi optimerar dina processer för bättre effektivitet och kvalitet genom kartläggning, analys och förbättringsarbete.</p>
+            <div class="service-more">
+              <span>Läs mer</span>
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </div>
+          
+          <div class="service swipe-item ripple" data-delay="2">
+            <i class="fas fa-chart-line" aria-hidden="true"></i>
+            <h3>Affärsutveckling</h3>
+            <p>Vi stödjer dig i att identifiera nya möjligheter för tillväxt och hjälper dig utveckla strategier för framgång.</p>
+            <div class="service-more">
+              <span>Läs mer</span>
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </div>
+          
+          <div class="service swipe-item ripple" data-delay="3">
+            <i class="fas fa-lightbulb" aria-hidden="true"></i>
+            <h3>Strategisk rådgivning</h3>
+            <p>Vi hjälper ditt företag fatta välgrundade beslut baserade på analys, marknadstrender och framtidsutsikter.</p>
+            <div class="service-more">
+              <span>Läs mer</span>
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </div>
+          
+          <div class="service swipe-item ripple" data-delay="4">
+            <i class="fas fa-headset" aria-hidden="true"></i>
+            <h3>Teknisk support</h3>
+            <p>Vi säkerställer att dina system fungerar smidigt och effektivt med teknisk support och optimering.</p>
+            <div class="service-more">
+              <span>Läs mer</span>
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </div>
+          
+          <div class="service swipe-item ripple" data-delay="5">
+            <i class="fas fa-digital-tachograph" aria-hidden="true"></i>
+            <h3>Digitalisering</h3>
+            <p>Vi hjälper dig digitalisera processer för ökad konkurrenskraft och effektivitet i den digitala eran.</p>
+            <div class="service-more">
+              <span>Läs mer</span>
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Swipe navigation dots -->
+        <div class="swipe-dots"></div>
+      </div>
+    </section>
+
+    <!-- Curve divider after services section -->
+    <div class="divider divider-curve"></div>
+
+    <section id="contact">
+
+      
+      <div class="container">
+        <h2>Kontakta oss</h2>
+        <div class="section-intro">
+          <p>Har du frågor eller vill diskutera en potentiell samarbetsmöjlighet? Fyll i formuläret nedan så återkommer vi inom kort.</p>
+        </div>
+        
+        <form id="contact-form" class="contact-form" action="https://formspree.io/f/xjkwklga" method="POST">
+            <div class="form-group">
+              <label for="name">Namn</label>
+              <input type="text" id="name" name="name" required autocomplete="name">
+              <div class="error-message" id="name-error"></div>
+            </div>
+            
+            <div class="form-group">
+              <label for="email">E-post</label>
+              <input type="email" id="email" name="email" required autocomplete="email">
+              <div class="error-message" id="email-error"></div>
+            </div>
+            
+            <div class="form-group">
+              <label for="subject">Ämne</label>
+              <input type="text" id="subject" name="subject" required>
+              <div class="error-message" id="subject-error"></div>
+            </div>
+            
+            <div class="form-group">
+              <label for="message">Meddelande</label>
+              <textarea id="message" name="message" rows="4" required></textarea>
+              <div class="error-message" id="message-error"></div>
+            </div>
+            
+            <label class="custom-checkbox">
+              <input type="checkbox" required>
+              <span class="checkmark"></span>
+              Jag godkänner att Kapybara sparar mina uppgifter för att kunna kontakta mig.
+            </label>
+            
+            <div class="form-status" id="form-status"></div>
+            
+            <button type="submit" class="btn form-btn ripple">
+              <span class="submit-text">Skicka meddelande</span>
+            </button>
+          </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-background"></div>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-col">
+          <h4>Kapybara</h4>
+          <p>Vi hjälper företag att optimera processer och leverera framgångsrika projekt för en hållbar tillväxt.</p>
+          <p>Grundat 2020 med visionen att göra professionell projektledning tillgänglig för alla företag.</p>
+        </div>
+        
+        <div class="footer-col">
+          <h4>Tjänster</h4>
+          <a href="#services">Projektledning</a>
+          <a href="#services">Processutveckling</a>
+          <a href="#services">Affärsutveckling</a>
+          <a href="#services">Strategisk rådgivning</a>
+          <a href="#services">Digitalisering</a>
+        </div>
+        
+        <div class="footer-col">
+          <h4>Kontakt</h4>
+          <p><a href="mailto:info@kapybara.com"><i class="fas fa-envelope"></i> info@kapybara.com</a></p>
+          <p><a href="tel:+46701234567"><i class="fas fa-phone"></i> +46 70 123 45 67</a></p>
+          <p><i class="fas fa-map-marker-alt"></i> Storgatan 1, 111 23 Stockholm</p>
+        </div>
+        
+        <div class="footer-col">
+          <h4>Följ oss</h4>
+          <div class="social-links">
+            <a href="https://linkedin.com/company/kapybara" aria-label="LinkedIn" class="ripple"><i class="fab fa-linkedin" aria-hidden="true"></i></a>
+            <a href="https://x.com/kapybara" aria-label="X (Twitter)" class="ripple"><i class="fab fa-x-twitter" aria-hidden="true"></i></a>
+            <a href="https://facebook.com/kapybara" aria-label="Facebook" class="ripple"><i class="fab fa-facebook" aria-hidden="true"></i></a>
+            <a href="https://instagram.com/kapybara" aria-label="Instagram" class="ripple"><i class="fab fa-instagram" aria-hidden="true"></i></a>
+          </div>
+        </div>
+      </div>
+      
+      <p class="copyright">© 2025 Kapybara. Alla rättigheter förbehållna.</p>
+    </div>
+  </footer>
+
+  <!-- Toast container for mobile notifications -->
+  <div class="toast-container"></div>
+  
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(registration => {
+            console.log('ServiceWorker registration successful');
+          })
+          .catch(error => {
+            console.log('ServiceWorker registration failed: ', error);
+          });
+      });
+    }
+  </script>
+</body>
+</html>
