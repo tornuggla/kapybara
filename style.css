@@ -1977,7 +1977,6 @@ html {
   scroll-padding-top: 80px; /* Adjust based on your header height */
 }
 
-/* Footer logo wrapper to ensure centering */
 .footer-logo-wrapper {
   width: 100%;
   display: flex;
@@ -1988,38 +1987,45 @@ html {
 /* Footer logo styling */
 .footer-logo {
   text-align: center;
-  /* Using flex container above for centering instead */
 }
 
+/* Style the link to be invisible (no underline) */
+.footer-logo a {
+  display: block;
+  text-decoration: none;
+  border: none;
+}
+
+.footer-logo a::after {
+  display: none; /* Remove any underline that might be added by your global styles */
+}
+
+/* Logo image styles */
 .footer-logo img {
   max-width: 80px;
   height: auto;
   opacity: 0.8;
-  transition: opacity 0.3s ease;
-  display: block; /* Ensures the image doesn't have default inline behavior */
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  display: block;
 }
 
-.footer-logo img:hover {
+/* Hover effect on the logo */
+.footer-logo a:hover img {
   opacity: 1;
+  transform: scale(1.05);
 }
 
 /* Responsive adjustment with explicit centering */
 @media (max-width: 768px) {
   .footer-logo-wrapper {
     margin-top: 1rem;
-    /* Reinforce centering on mobile */
     display: flex;
     justify-content: center;
     width: 100%;
   }
   
-  .footer-logo {
-    /* Explicit text alignment in case flex isn't working */
-    text-align: center;
-  }
-  
   .footer-logo img {
     max-width: 100px;
-    margin: 0 auto; /* Additional centering insurance */
+    margin: 0 auto;
   }
 }
