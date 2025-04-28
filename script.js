@@ -218,7 +218,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initTouchInteractions();
 
   initServiceModals();
-  fixLogoHighlight()
 });
 
 /**
@@ -1507,52 +1506,6 @@ function initLogoAnimation() {
       particle.style.top = `${y}px`;
     });
   });
-}
-
-/**
- * Fix for stuck logo highlight on mobile devices
- * This function ensures that any highlight or hover state is properly managed
- * while still allowing particle effects to show
- */
-function fixLogoHighlight() {
-  const logoLink = document.querySelector('.logo a');
-  if (!logoLink) return;
-  
-  // Add a touchend handler to manage highlight states
-  logoLink.addEventListener('touchend', function(e) {
-    // Small delay to ensure iOS has finished its touch handling
-    setTimeout(() => {
-      // Force blur to remove any focus state
-      this.blur();
-      
-      // Trigger the particle effect to make it visible
-      const logo = this.closest('.logo');
-      
-      // Allow particles to show after touch
-      if (logo) {
-        // Add a class to allow particles to display temporarily
-        logo.classList.add('touch-active');
-        
-        // Remove the class after the animation duration
-        setTimeout(() => {
-          logo.classList.remove('touch-active');
-        }, 800); // Match this to your particle animation duration
-      }
-    }, 10);
-  });
-  
-  // Additional check - detect any iOS-specific touch events
-  const isMobileIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-  
-  if (isMobileIOS) {
-    // Add body touchstart listener to reset any highlighted elements
-    document.body.addEventListener('touchstart', function(e) {
-      // If we're not touching the logo, reset it
-      if (e.target !== logoLink && !logoLink.contains(e.target)) {
-        logoLink.blur();
-      }
-    }, { passive: true });
-  }
 }
 
 // Ensure page loads at the top on refresh while respecting intentional anchors
