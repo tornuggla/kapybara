@@ -1976,3 +1976,32 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: 80px; /* Adjust based on your header height */
 }
+
+/* Footer logo styling */
+.footer-logo {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.footer-logo img {
+  max-width: 80px;
+  height: auto;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.footer-logo img:hover {
+  opacity: 1;
+}
+
+/* Responsive adjustment */
+@media (max-width: 768px) {
+  .footer-logo {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+  }
+  
+  .footer-logo img {
+    max-width: 100px;
+  }
+}
