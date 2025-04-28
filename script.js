@@ -207,6 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Navigation tracking
   initSectionTracking();
+  fixHeroButtonNavigation();
   
   // Mobile-specific enhancements
   if (isMobile) {
@@ -1041,100 +1042,142 @@ function initSectionTracking() {
   
   if (!sections.length) return;
   
-  // Store section positions for performance
-  const sectionPositions = new Map();
+  // Create an object to store section visibility percentages
+  const sectionVisibility = {};
+  sections.forEach(section => {
+    sectionVisibility[section.id] = 0;
+  });
   
-  // Function to recalculate section positions
-  const updateSectionPositions = () => {
-    sections.forEach(section => {
-      sectionPositions.set(section.id, {
-        top: section.offsetTop - 100,
-        bottom: section.offsetTop + section.offsetHeight - 100
-      });
-    });
-  };
-  
-  // Initial call and update on resize
-  updateSectionPositions();
-  window.addEventListener('resize', utils.debounce(updateSectionPositions, 100));
-  
-  // Update active navigation links - throttled
-  const updateActiveLinks = utils.throttle(() => {
-    const scrollPosition = window.scrollY;
-    let activeSection = null;
-    
-    // Get the contact section specifically
-    const contactSection = sections[sections.length - 1];
-    const contactId = contactSection.id;
-    const contactPosition = sectionPositions.get(contactId);
-    
-    // Check if we're viewing the contact section either:
-    // 1. We're within the contact section's vertical boundaries, OR
-    // 2. We're at the bottom of the page
-    const isInContactSection = contactPosition && 
-      scrollPosition >= contactPosition.top && 
-      scrollPosition < contactPosition.bottom;
-    
-    const isAtBottom = scrollPosition + window.innerHeight >= document.body.offsetHeight - 150;
-    
-    // Determine active section with improved logic
-    if (isInContactSection || isAtBottom) {
-      // If in contact section or at bottom, always highlight contact
-      activeSection = contactId;
-    } 
-    else if (scrollPosition < 100) {
-      // Special case for top of page
-      activeSection = 'home';
-    } 
-    else {
-      // Check other sections (excluding contact which we've already handled)
-      for (const [id, position] of sectionPositions.entries()) {
-        if (id !== contactId && scrollPosition >= position.top && scrollPosition < position.bottom) {
-          activeSection = id;
-          break;
-        }
-      }
-      
-      // If no section was found active but we've scrolled significantly
-      // find the nearest section based on position
-      if (!activeSection && scrollPosition > 100) {
-        let closestSection = null;
-        let closestDistance = Infinity;
-        
-        for (const [id, position] of sectionPositions.entries()) {
-          // Calculate distance to section
-          const distanceToTop = Math.abs(scrollPosition - position.top);
-          const distanceToBottom = Math.abs(scrollPosition - position.bottom);
-          const minDistance = Math.min(distanceToTop, distanceToBottom);
-          
-          if (minDistance < closestDistance) {
-            closestDistance = minDistance;
-            closestSection = id;
-          }
-        }
-        
-        activeSection = closestSection;
-      }
-    }
-    
-    // Update all navigation links efficiently
-    const updateNavLinks = (links) => {
+  // Function to update nav links with active class
+  const updateNavLinks = (sectionId) => {
+    const updateLinkSet = (links) => {
       links.forEach(link => {
         const href = link.getAttribute('href')?.substring(1);
-        link.classList.toggle('active', href === activeSection);
+        if (href === sectionId) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
       });
     };
     
-    updateNavLinks(navLinks);
-    updateNavLinks(mobileNavLinks);
+    updateLinkSet(navLinks);
+    if (mobileNavLinks.length) {
+      updateLinkSet(mobileNavLinks);
+    }
+  };
+  
+  // Setup intersection observer with threshold array for more granular observation
+  const observerOptions = {
+    root: null, // viewport is the root
+    rootMargin: '-80px 0px -20% 0px', // Adjust based on your header height
+    threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+  };
+  
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      // Update the visibility percentage
+      const { id } = entry.target;
+      sectionVisibility[id] = entry.intersectionRatio;
+    });
     
-    // For debugging (remove in production)
-    // console.log(`Scroll: ${scrollPosition}, Active: ${activeSection}, In Contact: ${isInContactSection}, At Bottom: ${isAtBottom}`);
+    // Special case: at the top of the page, highlight home
+    if (window.scrollY < 100) {
+      updateNavLinks('home');
+      return;
+    }
+    
+    // Special case: at the bottom of the page, highlight last section
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 50) {
+      updateNavLinks(sections[sections.length - 1].id);
+      return;
+    }
+    
+    // Find the section with the highest visibility
+    let maxVisibility = 0;
+    let activeSectionId = null;
+    
+    for (const [id, visibility] of Object.entries(sectionVisibility)) {
+      if (visibility > maxVisibility) {
+        maxVisibility = visibility;
+        activeSectionId = id;
+      }
+    }
+    
+    // If we have an active section, update nav links
+    if (activeSectionId) {
+      updateNavLinks(activeSectionId);
+    }
+  }, observerOptions);
+  
+  // Observe all sections
+  sections.forEach(section => {
+    sectionObserver.observe(section);
+  });
+  
+  // Initial check for active section on page load
+  setTimeout(() => {
+    // Special cases for page load
+    if (window.scrollY < 100) {
+      updateNavLinks('home');
+    } else if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 50) {
+      updateNavLinks(sections[sections.length - 1].id);
+    }
   }, 100);
   
-  // Initialize and add scroll listener
-  updateActiveLinks();
-  window.addEventListener('scroll', updateActiveLinks, { passive: true });
+  // Also update when clicking nav links
+  navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      // Get the target section id
+      const targetId = link.getAttribute('href')?.substring(1);
+      if (targetId) {
+        // Update nav links immediately for responsiveness
+        updateNavLinks(targetId);
+      }
+    });
+  });
+  
+  // Do the same for mobile nav links if they exist
+  if (mobileNavLinks.length) {
+    mobileNavLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        const targetId = link.getAttribute('href')?.substring(1);
+        if (targetId) {
+          updateNavLinks(targetId);
+        }
+      });
+    });
+  }
+}
+
+function fixHeroButtonNavigation() {
+  // Fix for hero buttons navigation
+  const heroButtons = utils.getAll('.hero-buttons .btn');
+  
+  heroButtons.forEach(button => {
+    button.addEventListener('click', (e) => {
+      // Get the target section id from the href attribute
+      const href = button.getAttribute('href');
+      if (href && href.startsWith('#')) {
+        e.preventDefault();
+        
+        // Scroll to the target section
+        const targetSection = utils.get(href);
+        if (targetSection) {
+          utils.smoothScrollTo(targetSection, 800);
+          
+          // Update active nav link after scrolling
+          setTimeout(() => {
+            const sectionId = href.substring(1);
+            utils.getAll('.nav-links a').forEach(link => {
+              const linkHref = link.getAttribute('href')?.substring(1);
+              link.classList.toggle('active', linkHref === sectionId);
+            });
+          }, 800); // Wait for scroll animation to complete
+        }
+      }
+    });
+  });
 }
 
 /**

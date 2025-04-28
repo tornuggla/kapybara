@@ -1921,3 +1921,65 @@ footer {
     transition-duration: 0.001ms !important;
   }
 }
+
+
+/* Fix for white border under footer on iOS */
+html {
+  height: 100%;
+  position: relative;
+}
+
+body {
+  width: 100%;
+  position: relative;
+  /* Use a more targeted approach instead of overflow-x: hidden */
+  margin: 0;
+  padding: 0;
+}
+
+/* Make sure body extends to the full viewport height */
+body {
+  min-height: 100vh;
+  min-height: -webkit-fill-available; /* iOS specific */
+}
+
+/* Adjust safari viewport height and fix white border issue */
+@supports (-webkit-touch-callout: none) {
+  footer {
+    padding-bottom: calc(2rem + env(safe-area-inset-bottom)) !important;
+    margin-bottom: 0 !important;
+  }
+  
+  html {
+    height: -webkit-fill-available;
+  }
+  
+  /* More targeted fix for the white border */
+  body::after {
+    content: '';
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: env(safe-area-inset-bottom);
+    background-color: var(--dark); /* Match your footer background color */
+    z-index: 998; /* Below most elements but above background */
+  }
+}
+
+/* Fix for logo highlight persistence on iOS */
+.logo a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Apply to all interactive elements to avoid highlight on tap */
+a, button, .service, .nav-links a, .social-links a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Fix for nav menu active state tracking */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px; /* Adjust based on your header height */
+}
