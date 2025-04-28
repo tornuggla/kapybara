@@ -422,11 +422,12 @@ function initNavigation() {
 }
 
 /**
- * Enhanced smooth scrolling for anchor links
+ * Enhanced smooth scrolling for anchor links with proper event delegation
  */
 function initSmoothScroll() {
-  // Event delegation for all anchor links
+  // Single event listener with proper delegation pattern
   document.addEventListener('click', (e) => {
+    // Find if an anchor was clicked or if user clicked inside an anchor
     const anchor = e.target.closest('a[href^="#"]:not([href="#"])');
     if (!anchor) return;
     
@@ -449,10 +450,10 @@ function initSmoothScroll() {
     }
   });
   
-  // Handle scroll hint
+  // Handle scroll hint - using event delegation
   const scrollHint = utils.get('.scroll-hint');
   if (scrollHint) {
-    utils.on(scrollHint, 'click', () => {
+    scrollHint.addEventListener('click', () => {
       const aboutSection = utils.get('#about');
       if (aboutSection) utils.smoothScrollTo(aboutSection, 800);
     });
