@@ -1983,3 +1983,61 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: 80px; /* Adjust based on your header height */
 }
+
+/* Comprehensive fix for the logo highlight issue on mobile */
+.logo a {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  outline: none;
+}
+
+/* The ::before pseudo-element that might be getting stuck */
+.logo a::before {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Special class for mobile touch particle effect */
+.logo.touch-active .particle {
+  animation: particle-animation 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  opacity: 1;
+}
+
+.logo.touch-active .particle:nth-child(1) { animation-delay: 0.1s; }
+.logo.touch-active .particle:nth-child(2) { animation-delay: 0.2s; }
+.logo.touch-active .particle:nth-child(3) { animation-delay: 0.3s; }
+.logo.touch-active .particle:nth-child(4) { animation-delay: 0.4s; }
+.logo.touch-active .particle:nth-child(5) { animation-delay: 0.5s; }
+
+/* Force override any active/hover states on touch devices */
+@media (hover: none) {
+  .logo a:hover, 
+  .logo a:active, 
+  .logo a:focus {
+    /* Reset any hover/active specific styles that might persist */
+    transform: none !important;
+  }
+  
+  /* This specifically targets the color sweep animation */
+  .logo a:hover::before {
+    width: 0 !important;
+    transition: none !important;
+  }
+  
+  /* Keep particles visible on mobile, but ensure they don't get "stuck" */
+  .logo a:active ~ .particles {
+    /* Trigger the particles on active state for mobile */
+    opacity: 1;
+  }
+  
+  /* And reset any color changes */
+  .logo a:hover, 
+  .logo a:active, 
+  .logo a:focus,
+  .logo a:hover::before {
+    color: var(--light) !important;
+  }
+}
+
+/* Fix for Safari - Add JavaScript to force reset hover states */
