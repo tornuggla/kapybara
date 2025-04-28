@@ -1,0 +1,23 @@
+{
+  "name": "Kapybara",
+  "short_name": "Kapybara",
+  "lang": "sv",
+  "description": "Kapybara erbjuder professionella konsulttjänster inom projektledning och processutveckling.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#007BFF",
+  "icons": [
+    {
+      "src": "images/favicon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "images/favicon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
