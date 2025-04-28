@@ -287,12 +287,15 @@ function initNavigation() {
   const mobileOverlay = utils.get('.mobile-overlay');
   const navLinks = utils.getAll('.nav-links a');
   
-  // Exit if elements don't exist
-  if (!hamburger || !navMenu) return;
+  // Exit if essential elements don't exist
+  if (!hamburger || !navMenu) {
+    console.warn('Navigation elements not found');
+    return;
+  }
   
-  // Define the close menu function - this is crucial for fixing the issue
+  // Define the close menu function
   const closeMenu = () => {
-    // Check if menu is currently active
+    // Only attempt to close if menu is active
     if (navMenu.classList.contains('active')) {
       // Remove active class from menu
       navMenu.classList.remove('active');
@@ -308,14 +311,11 @@ function initNavigation() {
       if (mobileOverlay) {
         mobileOverlay.classList.remove('active');
       }
-      
-      // Log for debugging (can remove later)
-      console.log('Menu closed');
     }
   };
   
   // Toggle mobile navigation when hamburger is clicked
-  utils.on(hamburger, 'click', () => {
+  hamburger.addEventListener('click', () => {
     const isExpanded = hamburger.getAttribute('aria-expanded') === 'true';
     hamburger.setAttribute('aria-expanded', !isExpanded);
     hamburger.classList.toggle('is-active');
@@ -330,67 +330,36 @@ function initNavigation() {
     document.body.style.overflow = isExpanded ? '' : 'hidden';
   });
   
-  // THIS IS THE KEY PART: Ensure each nav link closes the menu when clicked
+  // Add unified event handler for nav links
   navLinks.forEach(link => {
-    utils.on(link, 'click', (e) => {
-      // Debug log (can remove later)
-      console.log('Nav link clicked:', link.textContent);
-      
-      // First, close the menu
+    // Use click for both desktop and mobile
+    link.addEventListener('click', (e) => {
+      // First close the menu (if open)
       closeMenu();
       
       // Handle anchor links with smooth scrolling
       const href = link.getAttribute('href');
       if (href && href.startsWith('#')) {
         e.preventDefault();
+        
         const targetElement = document.querySelector(href);
         if (targetElement) {
-          // Allow a small delay for menu closing animation
+          // Short delay to allow menu closing animation
           setTimeout(() => {
             utils.smoothScrollTo(targetElement, 800);
-          }, 300);
+          }, 100);
         }
-      }
-    });
-    
-    // For mobile, also add a touchend handler specifically
-    utils.on(link, 'touchend', (e) => {
-      // Prevent the event from being processed multiple times
-      e.preventDefault();
-      e.stopPropagation();
-      
-      // Debug log (can remove later)
-      console.log('Nav link touched:', link.textContent);
-      
-      // Close the menu first
-      closeMenu();
-      
-      // Handle anchor links with smooth scrolling
-      const href = link.getAttribute('href');
-      if (href && href.startsWith('#')) {
-        const targetElement = document.querySelector(href);
-        if (targetElement) {
-          // Allow a small delay for menu closing animation
-          setTimeout(() => {
-            utils.smoothScrollTo(targetElement, 800);
-          }, 300);
-        }
-      } else if (href && !href.startsWith('#')) {
-        // Navigate to external links after a small delay
-        setTimeout(() => {
-          window.location.href = href;
-        }, 300);
       }
     });
   });
   
   // Close menu when overlay is clicked
   if (mobileOverlay) {
-    utils.on(mobileOverlay, 'click', closeMenu);
+    mobileOverlay.addEventListener('click', closeMenu);
   }
   
   // Handle keyboard accessibility - close menu on Escape key
-  utils.on(document, 'keydown', (e) => {
+  document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeMenu();
   });
   
@@ -417,8 +386,8 @@ function initNavigation() {
   }, 100);
   
   // Initialize active state and add scroll listener
-  //updateActiveNavItem();
-  //window.addEventListener('scroll', updateActiveNavItem, { passive: true });
+  updateActiveNavItem();
+  window.addEventListener('scroll', updateActiveNavItem, { passive: true });
 }
 
 /**
@@ -788,44 +757,14 @@ function checkConnection() {
   }
 }
 
-/**
- * Optimized swipeable services setup
- */
-function setupSwipeableServices() {
-  const servicesGrid = utils.get('.services-grid');
-  const services = utils.getAll('.service');
-  
-  if (!servicesGrid || !services.length) return;
-  
-  // Get the dots container
-  const dotsContainer = utils.get('.swipe-dots');
-  
-  // If we're on mobile, simply hide or remove the dots since they're not needed
-  if (isMobile && dotsContainer) {
-    // Option 1: Hide them with CSS
-    dotsContainer.style.display = 'none';
-    
-    // Option 2: Remove them from DOM entirely
-    // If you prefer this approach, uncomment the next line and comment out the style line above
-    // dotsContainer.parentNode.removeChild(dotsContainer);
-  }
-}
-
 // Function to initialize all mobile fixes
 function initMobileTouchFixes() {
-  // Update Fast Click implementation
-  initFastClick();
+  // Apply specific mobile touch enhancements
+  console.log('Initializing mobile touch fixes');
   
   // Update Service Cards interaction
   initServiceModals();
-  
-  // Remove swipe dots
-  setupSwipeableServices();
-  
-  // Add this function to DOMContentLoaded event or where other initializations happen
-  console.log('Mobile touch fixes initialized');
 }
-
 
 /**
  * Add vibration feedback for touch interactions
@@ -854,46 +793,18 @@ function initVibrationFeedback() {
  * Optimized fast click implementation to reduce tap delay on mobile
  */
 function initFastClick() {
-  // We'll completely revise this function to be less intrusive
-  // This will eliminate the interference with normal scrolling behavior
+  // We're completely replacing the problematic fastClick implementation
+  // with a simpler version that won't interfere with scrolling
   
-  // Instead of tracking touch events aggressively, we'll make a simpler version
-  // that doesn't interfere with scrolling
-  
-  // Use a small threshold for distinguishing taps from scrolls
-  const tapThreshold = 10; // pixels
-  const timeThreshold = 300; // milliseconds
-  
-  // We'll only apply fastClick to specific elements that need it
-  const fastClickElements = document.querySelectorAll('a.btn, button:not(.service)');
+  // Only apply to specific buttons that need it
+  const fastClickElements = utils.getAll('a.btn, button.btn, .nav-links a');
   
   fastClickElements.forEach(element => {
-    let touchStartY = 0;
-    let touchStartX = 0;
-    let touchStartTime = 0;
-    
-    element.addEventListener('touchstart', e => {
-      touchStartY = e.touches[0].clientY;
-      touchStartX = e.touches[0].clientX;
-      touchStartTime = Date.now();
-    }, { passive: true }); // Keep passive to avoid blocking scrolling
-    
-    element.addEventListener('touchend', e => {
-      const touchEndY = e.changedTouches[0].clientY;
-      const touchEndX = e.changedTouches[0].clientX;
-      const deltaY = Math.abs(touchEndY - touchStartY);
-      const deltaX = Math.abs(touchEndX - touchStartX);
-      const touchDuration = Date.now() - touchStartTime;
-      
-      // Only consider this a tap if movement was minimal and duration was short
-      if (deltaY < tapThreshold && deltaX < tapThreshold && touchDuration < timeThreshold) {
-        // For links, let the browser handle navigation naturally
-        // This prevents our custom code from interfering with normal link behavior
-      }
-    }, { passive: true }); // Keep passive to allow default behavior
+    // Remove any existing click delay on mobile devices
+    element.style.touchAction = 'manipulation';
   });
   
-  console.log('Fixed FastClick initialized');
+  console.log('Simplified FastClick initialized');
 }
 
 /**
@@ -1152,12 +1063,10 @@ function initSectionTracking() {
 }
 
 function fixHeroButtonNavigation() {
-  // Fix for hero buttons navigation
   const heroButtons = utils.getAll('.hero-buttons .btn');
   
   heroButtons.forEach(button => {
     button.addEventListener('click', (e) => {
-      // Get the target section id from the href attribute
       const href = button.getAttribute('href');
       if (href && href.startsWith('#')) {
         e.preventDefault();
@@ -1167,14 +1076,14 @@ function fixHeroButtonNavigation() {
         if (targetSection) {
           utils.smoothScrollTo(targetSection, 800);
           
-          // Update active nav link after scrolling
+          // Update active nav link
           setTimeout(() => {
             const sectionId = href.substring(1);
             utils.getAll('.nav-links a').forEach(link => {
               const linkHref = link.getAttribute('href')?.substring(1);
               link.classList.toggle('active', linkHref === sectionId);
             });
-          }, 800); // Wait for scroll animation to complete
+          }, 800);
         }
       }
     });
