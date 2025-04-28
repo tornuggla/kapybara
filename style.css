@@ -1694,7 +1694,7 @@ footer {
 
   .hero-buttons {
     flex-direction: column;
-    gap: 1.25rem; /* Increased gap for mobile */
+    gap: 1rem; /* Increased gap for mobile */
     width: 100%;
     max-width: 280px; /* Optional: limit width on mobile */
     margin: 1.5rem auto 0;
