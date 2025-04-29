@@ -1234,6 +1234,24 @@ footer {
   font-size: var(--text-sm);
 }
 
+.footer-logo-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.footer-logo img {
+  max-width: 80px;
+  opacity: 0.8;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.footer-logo a:hover img {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
 /* ===== MODAL STYLES ===== */
 .modal-container {
   position: fixed;
