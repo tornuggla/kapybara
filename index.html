@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="sv" class="no-js">
+<!-- Optimized head section with refined critical CSS and resource hints -->
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
@@ -11,31 +12,34 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
-  <!-- Preconnect for faster resource loading -->
+  <!-- DNS-prefetch as fallback for preconnect -->
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+  
+  <!-- Optimized preconnect for faster resource loading -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
   
-  <!-- Favicon -->
+  <!-- Favicon with improved loading -->
   <link rel="icon" href="favicon.ico" type="image/x-icon">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="manifest" href="site.webmanifest">
 
-  <!-- Critically needed fonts preloaded -->
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Raleway:wght@300;400;500;600&display=swap" as="style">
+  <!-- Preload critical webfonts directly -->
+  <link rel="preload" href="https://fonts.gstatic.com/s/playfairdisplay/v30/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKeiukDUbtM.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="https://fonts.gstatic.com/s/raleway/v28/1Ptug8zYS_SKggPNyC0ITw.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
+  
+  <!-- Load font CSS with display swap -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
   
-  <!-- Social Meta Tags -->
-  <meta property="og:title" content="Kapybara - Projektledning & Processutveckling">
-  <meta property="og:description" content="Vi hjälper företag att optimera processer och leverera framgångsrika projekt.">
-  <meta property="og:url" content="https://kapybara.com">
-  <meta name="twitter:card" content="summary_large_image">
-  
-  <!-- Critical CSS inline -->
+  <!-- Refined critical CSS - focused on above-the-fold content only -->
   <style>
-    /* Critical CSS - essential rendering styles */
+    /* Essential variables and base styles */
     :root {
       --dark: #1a1b21;
       --light: #ffffff;
@@ -63,7 +67,6 @@
       opacity: 0;
       animation: fadeInBody 0.8s ease forwards;
       font-weight: 400;
-      font-size: 1.0625rem;
     }
     
     .container {
@@ -72,7 +75,8 @@
       margin: 0 auto;
     }
     
-    h1, h2, h3, h4, h5, h6 {
+    /* Typography essentials for hero section */
+    h1, h2 {
       font-family: 'Playfair Display', serif;
       line-height: 1.3;
       letter-spacing: -0.02em;
@@ -81,7 +85,7 @@
     }
     
     h1 {
-      font-size: 3.75rem;
+      font-size: clamp(2.5rem, 5vw, 3.75rem);
       font-weight: 800;
       letter-spacing: -0.03em;
     }
@@ -89,13 +93,6 @@
     p {
       margin-bottom: 1.25rem;
       line-height: 1.8;
-    }
-    
-    a {
-      color: var(--accent);
-      text-decoration: none;
-      transition: var(--transition);
-      position: relative;
     }
     
     /* Loading screen - critical for user experience */
@@ -236,8 +233,6 @@
     }
     
     .hero h1 {
-      font-size: clamp(2.5rem, 5vw, 4rem);
-      margin-bottom: 0.5rem;
       animation: slideUp 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
       opacity: 0;
       text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -341,12 +336,8 @@
     }
     
     @keyframes pulse {
-      0%, 100% {
-        transform: scale(1);
-      }
-      50% {
-        transform: scale(1.05);
-      }
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
     }
     
     @keyframes spin {
@@ -357,10 +348,6 @@
     @media (max-width: 768px) {
       .container {
         padding: 0 1.5rem;
-      }
-      
-      body {
-        font-size: 16px;
       }
       
       h1 {
@@ -393,35 +380,22 @@
       .nav-links.active {
         right: 0;
       }
-      
-      .nav-links li {
-        margin: 0;
-        width: 100%;
-      }
-      
-      .nav-links a {
-        font-size: 1.2rem;
-        display: block;
-        padding: 18px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        width: 100%;
-      }
     }
   </style>
   
-  <!-- Main CSS with non-render blocking loading -->
-  <link rel="stylesheet" href="style.css" media="print" onload="this.media='all'">
-  <noscript><link rel="stylesheet" href="style.css"></noscript>
-  
-  <!-- Optimized Font Awesome loading with preload -->
-  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/fontawesome.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/solid.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/brands.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <!-- Optimized Font Awesome loading -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/fontawesome.min.css" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/solid.min.css" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/brands.min.css" media="print" onload="this.media='all'">
   <noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/fontawesome.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/solid.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/brands.min.css">
   </noscript>
+  
+  <!-- Main CSS loaded asynchronously -->
+  <link rel="stylesheet" href="style.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="style.css"></noscript>
   
   <!-- Deferred JavaScript loading -->
   <script src="script.js" defer></script>
@@ -446,7 +420,7 @@
   "telephone": "+46 74 123 45 671",
   "email": "info@kapybara.com"
 }
-</script>
+  </script>
 </head>
 <body>
   <!-- Loading screen for initial page load -->

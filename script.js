@@ -17,12 +17,6 @@ const utils = {
     if (element) element.addEventListener(event, callback, options);
   },
   
-  onAll: (elements, event, callback, options = {}) => {
-    if (elements && elements.length) {
-      elements.forEach(element => element.addEventListener(event, callback, options));
-    }
-  },
-  
   // Performance optimization helpers
   debounce: (func, wait, immediate) => {
     let timeout;
@@ -191,32 +185,43 @@ hideLoadingScreen();
 
 // Then initialize everything else
 document.addEventListener('DOMContentLoaded', () => {
-  // Core components
-  initNavigation();
-  initSmoothScroll();
-  initScrollEffects();
-  initIntersectionObservers();
-  initContactForm();
+  // Use requestIdleCallback for non-critical initializations if supported
+  const idleInit = () => {
+    // Core components
+    initNavigation();
+    initSmoothScroll();
+    initScrollEffects();
+    initIntersectionObservers();
+    initContactForm();
+    
+    // Initialize the logo animation
+    initLogoAnimation();
+    
+    // Accessibility improvements
+    addSkipLink();
+    
+    // Navigation tracking
+    initSectionTracking();
+    fixHeroButtonNavigation();
+    
+    // Mobile-specific enhancements
+    if (isMobile) {
+      initMobileOptimizations();
+    }
+    
+    // Touch interactions for all devices
+    initTouchInteractions();
   
-  // Initialize the logo animation
-  initLogoAnimation();
-  
-  // Accessibility improvements
-  addSkipLink();
-  
-  // Navigation tracking
-  initSectionTracking();
-  fixHeroButtonNavigation();
-  
-  // Mobile-specific enhancements
-  if (isMobile) {
-    initMobileOptimizations();
-  }
-  
-  // Touch interactions for all devices
-  initTouchInteractions();
+    initServiceModals();
+  };
 
-  initServiceModals();
+  // Use requestIdleCallback for non-critical initializations if supported
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(idleInit, { timeout: 1000 });
+  } else {
+    // Fallback to setTimeout for browsers without requestIdleCallback
+    setTimeout(idleInit, 100);
+  }
 });
 
 /**
