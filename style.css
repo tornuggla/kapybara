@@ -395,11 +395,13 @@ nav.scrolled {
   overflow: hidden;
   z-index: 1;
   min-height: 100vh;
+  min-height: calc(var(--vh, 1vh) * 100); /* Use JS-calculated height */
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
+  height: calc(var(--vh, 1vh) * 100); /* Use JS-calculated height */
 }
 
 .hero-background {
@@ -445,7 +447,7 @@ nav.scrolled {
 /* Scroll Hint */
 .scroll-hint {
   position: absolute;
-  bottom: 30px;
+  bottom: max(30px, env(safe-area-inset-bottom) + 10px);
   left: 50%;
   transform: translateX(-50%);
   animation: bounce 2s infinite;
@@ -1546,4 +1548,8 @@ footer {
     height: 100vh;
     height: -webkit-fill-available;
   }
+}
+
+html {
+  height: -webkit-fill-available;
 }

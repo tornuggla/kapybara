@@ -189,6 +189,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initialize the logo animation
     initLogoAnimation();
+
+    // Add iOS viewport height fix here
+    fixIOSViewportHeight();
     
     // Accessibility improvements
     addSkipLink();
@@ -1360,6 +1363,25 @@ function initLogoAnimation() {
       particle.style.left = `${x}px`;
       particle.style.top = `${y}px`;
     });
+  });
+}
+
+// Fix for iOS viewport height issue
+function fixIOSViewportHeight() {
+  // First, set a fallback that works on all browsers
+  document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+  
+  // Then handle resize events
+  window.addEventListener('resize', () => {
+    document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+  });
+  
+  // Handle orientation change explicitly on iOS
+  window.addEventListener('orientationchange', () => {
+    // Small timeout to ensure the browser has updated the viewport size
+    setTimeout(() => {
+      document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+    }, 100);
   });
 }
 
