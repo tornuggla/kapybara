@@ -197,7 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initScrollEffects();
   initIntersectionObservers();
   initContactForm();
-  createHeroBackground();
   
   // Initialize the logo animation
   initLogoAnimation();
@@ -266,15 +265,6 @@ function hideLoadingScreen() {
   // Option 2: Fallback removal after timeout
   // This ensures it's removed even if the load event doesn't fire properly
   setTimeout(removeLoader, 2500); // Increased from 2000ms
-}
-
-/**
- * Create hero background with performance optimizations
- */
-function createHeroBackground() {
-  const heroBackground = utils.get('.hero-background');
-  
-  if (!heroBackground || isMobile) return;
 }
 
 /**
@@ -790,24 +780,6 @@ function initVibrationFeedback() {
 }
 
 /**
- * Optimized fast click implementation to reduce tap delay on mobile
- */
-function initFastClick() {
-  // We're completely replacing the problematic fastClick implementation
-  // with a simpler version that won't interfere with scrolling
-  
-  // Only apply to specific buttons that need it
-  const fastClickElements = utils.getAll('a.btn, button.btn, .nav-links a');
-  
-  fastClickElements.forEach(element => {
-    // Remove any existing click delay on mobile devices
-    element.style.touchAction = 'manipulation';
-  });
-  
-  console.log('Simplified FastClick initialized');
-}
-
-/**
  * Optimize images for mobile with native and fallback lazy loading
  */
 function optimizeImagesForMobile() {
@@ -846,8 +818,6 @@ function initTouchInteractions() {
   // Only initialize the ripple effect and avoid any gestures
   // that might interfere with scrolling
   initRippleEffect();
-  
-  // Remove initTouchGestures() call as it was causing issues
 }
 
 /**
@@ -888,30 +858,6 @@ function initRippleEffect() {
         target.removeChild(ripple);
       }
     }, 600);
-  });
-}
-
-/**
- * Add advanced touch gestures
- */
-function initTouchGestures() {
-  // Double-tap to scroll to top
-  let lastTap = 0;
-  
-  document.addEventListener('touchend', e => {
-    const currentTime = new Date().getTime();
-    const tapLength = currentTime - lastTap;
-    
-    if (tapLength < 300 && tapLength > 0) {
-      // Double tap detected
-      if (['BODY', 'HTML'].includes(e.target.tagName)) {
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        utils.showToast('Återgår till toppen', 'info');
-      }
-    }
-    
-    lastTap = currentTime;
   });
 }
 
