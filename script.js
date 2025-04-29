@@ -182,13 +182,6 @@ const utils = {
   }
 };
 
-/**
- * Initialize the site right away - don't wait for DOMContentLoaded
- * This helps ensure the loading screen is removed properly
- */
-// Remove loading screen first to ensure the site becomes visible
-hideLoadingScreen();
-
 // Then initialize everything else
 document.addEventListener('DOMContentLoaded', () => {
   // Core components
@@ -219,54 +212,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   initServiceModals();
 });
-
-/**
- * Enhanced loading screen functionality - separated from DOMContentLoaded
- * to ensure it runs even if there are other JS errors
- */
-function hideLoadingScreen() {
-  const loadingScreen = document.querySelector('.loading-screen');
-  
-  if (!loadingScreen) return;
-  
-  // Animate loading logo
-  const loadingLogo = loadingScreen.querySelector('.loading-logo');
-  if (loadingLogo) {
-    loadingLogo.style.opacity = '0';
-    loadingLogo.style.transform = 'scale(0.9)';
-    
-    setTimeout(() => {
-      loadingLogo.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
-      loadingLogo.style.opacity = '1';
-      loadingLogo.style.transform = 'scale(1)';
-    }, 300);
-  }
-  
-  // More reliable removal - use both load event and timeout
-  const removeLoader = () => {
-    // Add loaded class which hides it with CSS
-    loadingScreen.classList.add('loaded');
-    
-    // Then actually remove it from DOM after animation
-    setTimeout(() => {
-      if (loadingScreen.parentNode) {
-        loadingScreen.parentNode.removeChild(loadingScreen);
-        
-        // Force buttons to be visible after loading screen is gone
-        document.querySelectorAll('.btn').forEach(btn => {
-          btn.style.opacity = '1';
-        });
-      }
-    }, 500);
-  };
-  
-  // Option 1: Remove on window load
-  window.addEventListener('load', removeLoader);
-  
-  // Option 2: Fallback removal after timeout
-  // This ensures it's removed even if the load event doesn't fire properly
-  setTimeout(removeLoader, 2500); // Increased from 2000ms
-}
 
 /**
  * Create hero background with performance optimizations
