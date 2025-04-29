@@ -402,6 +402,7 @@ nav.scrolled {
   align-items: center;
   height: 100vh;
   height: calc(var(--vh, 1vh) * 100); /* Use JS-calculated height */
+  box-sizing: border-box;
 }
 
 .hero-background {
@@ -507,6 +508,8 @@ nav.scrolled {
   align-items: center;
   justify-content: center;
   min-height: 3.5rem;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .btn:hover {
@@ -1390,6 +1393,26 @@ footer {
 .ripple {
   position: relative;
   overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ripple-effect {
+  position: absolute;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.4);
+  pointer-events: none;
+  transform: scale(0);
+  animation: ripple 0.6s ease-out;
+  z-index: 0;
+  /* Ensure it stays within the button */
+  contain: strict;
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(2);
+    opacity: 0;
+  }
 }
 
 /* ===== RESPONSIVE STYLES ===== */
@@ -1464,10 +1487,22 @@ footer {
     width: 100%;
     max-width: 280px;
     margin: 1.5rem auto 0;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
   
   .hero-buttons .btn {
     width: 100%;
+     /* Prevent text selection */
+    -webkit-user-select: none;
+    user-select: none;
+    /* Increase tap target size */
+    padding: 1.2rem 2rem;
+  }
+
+  .scroll-hint {
+    bottom: max(30px, env(safe-area-inset-bottom) + 10px);
   }
   
   /* Services */
@@ -1546,10 +1581,24 @@ footer {
   
   .hero {
     height: 100vh;
-    height: -webkit-fill-available;
+    height: calc(var(--vh, 1vh) * 100);
+    min-height: calc(var(--vh, 1vh) * 100);
+    /* Add padding to account for iOS bottom bar */
+    padding-bottom: env(safe-area-inset-bottom);
   }
-}
-
-html {
-  height: -webkit-fill-available;
+  
+  /* Add these rules */
+  html, body {
+    width: 100%;
+    height: 100%;
+    height: -webkit-fill-available;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  main {
+    min-height: 100%;
+    width: 100%;
+  }
 }

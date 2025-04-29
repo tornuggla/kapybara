@@ -176,7 +176,7 @@ const utils = {
   }
 };
 
-// Then initialize everything else
+// Make sure to initialize these fixes at the right time
 document.addEventListener('DOMContentLoaded', () => {
   // Use requestIdleCallback for non-critical initializations if supported
   const idleInit = () => {
@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize the logo animation
     initLogoAnimation();
 
-    // Add iOS viewport height fix here
+    // Add iOS viewport height fix here - PRIORITY FIX
     fixIOSViewportHeight();
     
     // Accessibility improvements
@@ -198,6 +198,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Navigation tracking
     initSectionTracking();
+    
+    // Fix hero button navigation - PRIORITY FIX
     fixHeroButtonNavigation();
     
     // Mobile-specific enhancements
@@ -205,9 +207,10 @@ document.addEventListener('DOMContentLoaded', () => {
       initMobileOptimizations();
     }
     
-    // Touch interactions for all devices
-    initTouchInteractions();
-  
+    // Touch interactions for all devices - PRIORITY FIX
+    // Replace older implementation with our fixed version
+    initRippleEffect();
+    
     initServiceModals();
   };
 
@@ -218,6 +221,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fallback to setTimeout for browsers without requestIdleCallback
     setTimeout(idleInit, 100);
   }
+});
+
+// Window load event to ensure everything's loaded before final viewport height adjustment
+window.addEventListener('load', () => {
+  // Reapply the viewport height fix after everything has loaded
+  setTimeout(fixIOSViewportHeight, 100);
 });
 
 /**
@@ -778,22 +787,46 @@ function initTouchInteractions() {
  */
 // Fix the ripple effect to not interfere with scrolling
 function initRippleEffect() {
+  // First remove any existing ripple elements
+  utils.getAll('.ripple-effect').forEach(ripple => {
+    ripple.parentNode.removeChild(ripple);
+  });
+  
+  // Track last tap to prevent multiple ripples
+  let lastTap = 0;
+  
   // Use event delegation for all ripple elements
-  document.addEventListener('click', e => {
+  document.addEventListener('touchstart', e => {
     const target = e.target.closest('.ripple');
     if (!target) return;
     
-    // Create ripple with optimized calculations
+    // Prevent default to stop iOS zoom on double tap
+    e.preventDefault();
+    
+    // Prevent multiple ripples in quick succession
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTap;
+    
+    if (tapLength < 500 && tapLength > 0) {
+      // Double tap detected - stop this ripple
+      return;
+    }
+    
+    lastTap = currentTime;
+    
+    // Create ripple
     const ripple = document.createElement('span');
     ripple.classList.add('ripple-effect');
     
     const rect = target.getBoundingClientRect();
     
-    // Use click coordinates instead of touch coordinates
-    const rippleX = e.clientX - rect.left;
-    const rippleY = e.clientY - rect.top;
+    // Use first touch point for coordinates
+    const rippleX = e.touches[0].clientX - rect.left;
+    const rippleY = e.touches[0].clientY - rect.top;
     
-    const size = Math.max(rect.width, rect.height) * 2;
+    // Limit size to prevent excessive expansion
+    const maxDimension = Math.max(rect.width, rect.height);
+    const size = Math.min(maxDimension * 2, 200); // Cap at 200px
     
     // Apply styles
     ripple.style.cssText = `
@@ -806,6 +839,42 @@ function initRippleEffect() {
     target.appendChild(ripple);
     
     // Remove ripple after animation
+    setTimeout(() => {
+      if (ripple.parentNode === target) {
+        target.removeChild(ripple);
+      }
+    }, 600);
+  }, { passive: false }); // Non-passive to allow preventDefault
+  
+  // Handle click for non-touch devices
+  document.addEventListener('click', e => {
+    // Only process for non-touch devices
+    if ('ontouchstart' in window) return;
+    
+    const target = e.target.closest('.ripple');
+    if (!target) return;
+    
+    // Create ripple
+    const ripple = document.createElement('span');
+    ripple.classList.add('ripple-effect');
+    
+    const rect = target.getBoundingClientRect();
+    
+    const rippleX = e.clientX - rect.left;
+    const rippleY = e.clientY - rect.top;
+    
+    const maxDimension = Math.max(rect.width, rect.height);
+    const size = Math.min(maxDimension * 2, 200);
+    
+    ripple.style.cssText = `
+      width: ${size}px;
+      height: ${size}px;
+      left: ${rippleX - size/2}px;
+      top: ${rippleY - size/2}px;
+    `;
+    
+    target.appendChild(ripple);
+    
     setTimeout(() => {
       if (ripple.parentNode === target) {
         target.removeChild(ripple);
@@ -964,30 +1033,75 @@ function initSectionTracking() {
 function fixHeroButtonNavigation() {
   const heroButtons = utils.getAll('.hero-buttons .btn');
   
+  // Remove any existing event listeners from hero buttons
   heroButtons.forEach(button => {
-    button.addEventListener('click', (e) => {
-      const href = button.getAttribute('href');
-      if (href && href.startsWith('#')) {
+    // Clone button to remove all event listeners
+    const newButton = button.cloneNode(true);
+    button.parentNode.replaceChild(newButton, button);
+  });
+  
+  // Get fresh references to buttons after clone
+  const freshButtons = utils.getAll('.hero-buttons .btn');
+  
+  freshButtons.forEach(button => {
+    // Use touchend instead of click for better mobile response
+    button.addEventListener('touchend', function(e) {
+      // Prevent default to avoid any double-click issues
+      e.preventDefault();
+      
+      // Wait a bit to ensure any click events are complete
+      setTimeout(() => {
+        const href = this.getAttribute('href');
+        if (href && href.startsWith('#')) {
+          const targetSection = utils.get(href);
+          if (targetSection) {
+            // Scroll to the target section
+            utils.smoothScrollTo(targetSection, 800);
+            
+            // Update active nav link with a slight delay
+            setTimeout(() => {
+              const sectionId = href.substring(1);
+              utils.getAll('.nav-links a').forEach(link => {
+                const linkHref = link.getAttribute('href')?.substring(1);
+                link.classList.toggle('active', linkHref === sectionId);
+              });
+            }, 800);
+          }
+        }
+      }, 10);
+    });
+    
+    // Also add click for non-touch devices
+    button.addEventListener('click', function(e) {
+      // Only process click if it's not a touch device
+      if (!('ontouchstart' in window)) {
         e.preventDefault();
         
-        // Scroll to the target section
-        const targetSection = utils.get(href);
-        if (targetSection) {
-          utils.smoothScrollTo(targetSection, 800);
-          
-          // Update active nav link
-          setTimeout(() => {
-            const sectionId = href.substring(1);
-            utils.getAll('.nav-links a').forEach(link => {
-              const linkHref = link.getAttribute('href')?.substring(1);
-              link.classList.toggle('active', linkHref === sectionId);
-            });
-          }, 800);
+        const href = this.getAttribute('href');
+        if (href && href.startsWith('#')) {
+          const targetSection = utils.get(href);
+          if (targetSection) {
+            utils.smoothScrollTo(targetSection, 800);
+            
+            setTimeout(() => {
+              const sectionId = href.substring(1);
+              utils.getAll('.nav-links a').forEach(link => {
+                const linkHref = link.getAttribute('href')?.substring(1);
+                link.classList.toggle('active', linkHref === sectionId);
+              });
+            }, 800);
+          }
         }
       }
     });
+    
+    // Prevent zoom on double tap/click
+    button.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+    }, { passive: false });
   });
 }
+
 
 /**
  * Initialize service modals for clickable service cards and footer links
@@ -1368,21 +1482,53 @@ function initLogoAnimation() {
 
 // Fix for iOS viewport height issue
 function fixIOSViewportHeight() {
-  // First, set a fallback that works on all browsers
-  document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+  // Store the original viewport height
+  const setViewportHeight = () => {
+    // First check if it's an iOS device
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    
+    // Get the window inner height
+    const vh = window.innerHeight * 0.01;
+    
+    // Set the CSS variable
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+    
+    // Additional iOS specific fixes
+    if (isIOS) {
+      // Force repaint to ensure correct height
+      document.body.style.height = '100vh';
+      setTimeout(() => {
+        document.body.style.height = '';
+      }, 0);
+      
+      // Apply additional fixes for the hero section
+      const heroSection = utils.get('.hero');
+      if (heroSection) {
+        heroSection.style.height = `calc(var(--vh, 1vh) * 100)`;
+        heroSection.style.minHeight = `calc(var(--vh, 1vh) * 100)`;
+      }
+    }
+  };
   
-  // Then handle resize events
-  window.addEventListener('resize', () => {
-    document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
-  });
+  // Set the height initially
+  setViewportHeight();
   
-  // Handle orientation change explicitly on iOS
+  // Update on resize and orientation change
+  window.addEventListener('resize', utils.throttle(setViewportHeight, 100));
   window.addEventListener('orientationchange', () => {
     // Small timeout to ensure the browser has updated the viewport size
-    setTimeout(() => {
-      document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
-    }, 100);
+    setTimeout(setViewportHeight, 200);
   });
+  
+  // Additional fix for iOS Safari - update on scroll to account for toolbar
+  if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+    window.addEventListener('scroll', utils.throttle(() => {
+      const scrolled = window.scrollY > 0;
+      if (!scrolled) {
+        setViewportHeight();
+      }
+    }, 200));
+  }
 }
 
 // Ensure page loads at the top on refresh while respecting intentional anchors
