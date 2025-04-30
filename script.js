@@ -1159,28 +1159,42 @@ function initServiceModals() {
     showServiceModal(title, icon, getServiceContent(title), serviceType);
   });
   
-  // Add event delegation for footer service links
-  const footerServiceCol = utils.get('.footer-col:nth-child(2)');
-  if (footerServiceCol) {
-    footerServiceCol.addEventListener('click', (e) => {
-      // Find if a link was clicked
-      const link = e.target.closest('a');
-      if (!link) return; // Not a link
-      
-      e.preventDefault();
-      
-      const serviceTitle = link.textContent.trim();
-      
-      // Find index in parent to determine type
-      const links = footerServiceCol.querySelectorAll('a');
-      const linkIndex = Array.from(links).indexOf(link);
-      const serviceType = linkIndex % 2 === 0 ? 'primary' : 'secondary';
-      
-      const iconClass = getIconClassForService(serviceTitle);
-      
-      showServiceModal(serviceTitle, iconClass, getServiceContent(serviceTitle), serviceType);
-    });
-  }
+// Add event delegation for footer service links
+const footerServiceCol = utils.get('.footer-col:nth-child(2)');
+if (footerServiceCol) {
+  footerServiceCol.addEventListener('click', (e) => {
+    // Find if a link was clicked
+    const link = e.target.closest('a');
+    if (!link) return; // Not a link
+    
+    // Critical fix: Prevent default behavior AND stop propagation
+    e.preventDefault();
+    e.stopPropagation(); // This prevents any parent handlers from triggering
+    
+    const serviceTitle = link.textContent.trim();
+    
+    // Find index in parent to determine type
+    const links = footerServiceCol.querySelectorAll('a');
+    const linkIndex = Array.from(links).indexOf(link);
+    const serviceType = linkIndex % 2 === 0 ? 'primary' : 'secondary';
+    
+    const iconClass = getIconClassForService(serviceTitle);
+    
+    // Fix: Remove any existing href attribute temporarily to prevent scrolling
+    const originalHref = link.getAttribute('href');
+    link.removeAttribute('href');
+    
+    // Show modal with service details
+    showServiceModal(serviceTitle, iconClass, getServiceContent(serviceTitle), serviceType);
+    
+    // Restore href after a brief delay
+    setTimeout(() => {
+      if (originalHref) {
+        link.setAttribute('href', originalHref);
+      }
+    }, 100);
+  });
+}
   
   // The rest of the function remains the same
   
