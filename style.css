@@ -1168,7 +1168,7 @@ footer {
   background: var(--accent);
 }
 
-.footer-col:nth-child(even) h4::after {
+.footer-col:nth-child(even) .footer-heading::after {
   background: var(--secondary-accent);
 }
 
@@ -1190,6 +1190,31 @@ footer {
 .footer-col a:focus {
   opacity: 1;
   color: var(--accent);
+}
+
+.footer-heading {
+  margin-bottom: 1.5rem;
+  position: relative;
+  padding-bottom: 0.75rem;
+  font-size: var(--text-lg);
+  color: var(--light);
+}
+
+.footer-heading::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: var(--accent);
+}
+
+@media (max-width: 768px) {
+  .footer-heading::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
 }
 
 /* Social Links */
@@ -1481,7 +1506,6 @@ footer {
   position: relative;
   overflow: hidden;
   transform: translate3d(0, 0, 0);
-  will-change: transform;
 }
 
 .ripple-effect {
@@ -1492,7 +1516,6 @@ footer {
   transform: scale(0);
   animation: ripple-animation 0.6s ease-out;
   pointer-events: none;
-  will-change: transform, opacity;
 }
 
 /* ===== ANIMATION KEYFRAMES ===== */
