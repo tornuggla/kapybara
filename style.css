@@ -823,6 +823,10 @@ h2::after {
   transform: translateY(0);
 }
 
+.service.fade-in:hover {
+  transform: translateY(-10px) !important;
+}
+
 /* Service Card Elements */
 .service i {
   position: relative;
