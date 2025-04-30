@@ -201,6 +201,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Navigation tracking
   initSectionTracking();
   fixHeroButtonNavigation();
+
+  initThemeToggle();
   
   // Mobile-specific enhancements
   if (isMobile) {
@@ -1423,6 +1425,42 @@ function initLogoAnimation() {
       particle.style.left = `${x}px`;
       particle.style.top = `${y}px`;
     });
+  });
+}
+
+function initThemeToggle() {
+  const toggleBtn = document.getElementById('theme-toggle-btn');
+  
+  if (!toggleBtn) return;
+  
+  // Check for saved theme preference or use device preference
+  const savedTheme = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  
+  // Set initial theme
+  if (savedTheme) {
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark-theme');
+    }
+  } else if (prefersDark) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.body.classList.add('dark-theme');
+  }
+  
+  // Toggle theme on button click
+  toggleBtn.addEventListener('click', () => {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    
+    if (newTheme === 'dark') {
+      document.body.classList.add('dark-theme');
+    } else {
+      document.body.classList.remove('dark-theme');
+    }
   });
 }
 

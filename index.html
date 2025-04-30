@@ -448,22 +448,34 @@
   
   <header>
     <nav role="navigation">
-      <!-- Updated logo HTML structure -->
-      <div class="logo">
-        <a href="#home" data-text="Kapybara">Kapybara</a>
-      </div>
-      
-      <button class="hamburger ripple" aria-label="Meny" aria-expanded="false" aria-controls="nav-menu">
-        <span></span><span></span><span></span>
-      </button>
+    <div class="logo">
+      <a href="#home" data-text="Kapybara">Kapybara</a>
+    </div>
+    
+    <!-- Wrap menu and toggle together -->
+    <div class="nav-wrapper">
       <ul class="nav-links" id="nav-menu">
         <li><a href="#home" class="ripple">Hem</a></li>
         <li><a href="#about" class="ripple">Om oss</a></li>
         <li><a href="#services" class="ripple">Tjänster</a></li>
         <li><a href="#contact" class="ripple">Kontakt</a></li>
       </ul>
-    </nav>
+      
+      <!-- Theme toggle button right after menu -->
+      <div class="theme-toggle">
+        <button id="theme-toggle-btn" aria-label="Toggle dark mode">
+          <i class="fas fa-moon"></i>
+          <i class="fas fa-sun"></i>
+        </button>
+      </div>
+    </div>
     
+    <!-- Hamburger goes after everything for mobile -->
+    <button class="hamburger ripple" aria-label="Meny" aria-expanded="false" aria-controls="nav-menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+        
     <section id="home" class="hero">
       <div class="hero-background" aria-hidden="true">
         <!-- Enhanced dynamic background with patterns -->
