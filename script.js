@@ -799,42 +799,94 @@ function initTouchInteractions() {
  * Optimized ripple effect for touch feedback
  */
 // Fix the ripple effect to not interfere with scrolling
+// Optimized ripple effect function that preserves the hover lift effect
 function initRippleEffect() {
+  // Only use ripple on non-mobile devices or if the user has a powerful device
+  const shouldUseRipple = !isMobile || (window.devicePixelRatio > 1);
+  
+  // IMPORTANT: Make sure we don't interfere with existing hover effects
+  // Don't add the simple-hover class that would override existing hover styles
+  
   // Use event delegation for all ripple elements
   document.addEventListener('click', e => {
     const target = e.target.closest('.ripple');
     if (!target) return;
     
-    // Create ripple with optimized calculations
+    // Create ripple
     const ripple = document.createElement('span');
     ripple.classList.add('ripple-effect');
     
     const rect = target.getBoundingClientRect();
     
-    // Use click coordinates instead of touch coordinates
-    const rippleX = e.clientX - rect.left;
-    const rippleY = e.clientY - rect.top;
+    // Calculate the ripple size once
+    const size = Math.max(rect.width, rect.height) * 1.5;
     
-    const size = Math.max(rect.width, rect.height) * 2;
+    // Calculate position relative to click
+    const x = e.clientX - rect.left - (size / 2);
+    const y = e.clientY - rect.top - (size / 2);
     
-    // Apply styles
-    ripple.style.cssText = `
-      width: ${size}px;
-      height: ${size}px;
-      left: ${rippleX - size/2}px;
-      top: ${rippleY - size/2}px;
-    `;
+    // Set initial size to avoid layout shifts
+    ripple.style.width = size + 'px';
+    ripple.style.height = size + 'px';
+    ripple.style.left = x + 'px';
+    ripple.style.top = y + 'px';
     
-    target.appendChild(ripple);
-    
-    // Remove ripple after animation
-    setTimeout(() => {
-      if (ripple.parentNode === target) {
-        target.removeChild(ripple);
-      }
-    }, 600);
+    // Use requestAnimationFrame to optimize visual updates
+    requestAnimationFrame(() => {
+      target.appendChild(ripple);
+      
+      // Use a cleaner approach to remove the element after animation completes
+      ripple.addEventListener('animationend', () => {
+        if (ripple.parentNode === target) {
+          target.removeChild(ripple);
+        }
+      }, { once: true });
+    });
   });
 }
+
+// Add optimized styles that won't conflict with existing hover effects
+const rippleStyles = document.createElement('style');
+rippleStyles.textContent = `
+  .ripple {
+    position: relative;
+    overflow: hidden;
+    transform: translate3d(0, 0, 0);
+    will-change: transform, box-shadow;
+  }
+  
+  .ripple-effect {
+    position: absolute;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    opacity: 1;
+    /* Use transform instead of width/height for better performance */
+    transform: scale(0);
+    animation: ripple-animation 0.6s ease-out;
+    pointer-events: none;
+    will-change: transform, opacity;
+    z-index: 0; /* Ensure ripple stays under content */
+  }
+  
+  @keyframes ripple-animation {
+    to {
+      transform: scale(2);
+      opacity: 0;
+    }
+  }
+  
+  /* Preserve existing hover effects - ensures service cards still have lift */
+  .service {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                box-shadow 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  
+  .service:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--shadow-lg);
+  }
+`;
+document.head.appendChild(rippleStyles);
 
 /**
  * Add advanced touch gestures
