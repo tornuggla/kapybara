@@ -1042,13 +1042,20 @@ function fixHeroButtonNavigation() {
  * Initialize service modals for clickable service cards and footer links
  * Optimized with event delegation pattern
  */
+// Find the current implementation of the footer link click handler in initServiceModals()
+// and update it to properly prevent the default navigation behavior
+
+// This is a direct fix to be added to your site's script.js file
+
+// First, find the existing initServiceModals function and replace it with this version:
+
 function initServiceModals() {
   // Get necessary elements
   const servicesGrid = utils.get('.services-grid');
   const services = utils.getAll('.service');
   
   // Only proceed if we have services
-  if (!services.length || !servicesGrid) return;
+  if (!services.length && !servicesGrid) return;
   
   // Create modal container if it doesn't exist
   let modalContainer = utils.get('.modal-container');
@@ -1065,61 +1072,84 @@ function initServiceModals() {
   let touchStartTarget = null;
   let isDragging = false;
   
-  // ---- EVENT DELEGATION APPROACH ----
-  // Instead of attaching events to each service card,
-  // attach events to the container and delegate
-  
-  // Touch start handler with delegation
-  servicesGrid.addEventListener('touchstart', (e) => {
-    // Find if a service element was touched
-    const service = e.target.closest('.service');
-    if (!service) return; // Not a service element
-    
-    // Store touch information
-    touchStartY = e.touches[0].clientY;
-    touchStartX = e.touches[0].clientX;
-    touchStartTime = Date.now();
-    touchStartTarget = service;
-    isDragging = false;
-  }, { passive: true });
-  
-  // Touch move handler with delegation
-  servicesGrid.addEventListener('touchmove', (e) => {
-    if (!touchStartTarget) return; // No valid touch start
-    
-    if (!isDragging) {
-      const touchMoveY = e.touches[0].clientY;
-      const touchMoveX = e.touches[0].clientX;
-      const deltaY = Math.abs(touchMoveY - touchStartY);
-      const deltaX = Math.abs(touchMoveX - touchStartX);
+  // Service card touch/click handlers (if services grid exists)
+  if (servicesGrid) {
+    // Touch start handler with delegation
+    servicesGrid.addEventListener('touchstart', (e) => {
+      // Find if a service element was touched
+      const service = e.target.closest('.service');
+      if (!service) return; // Not a service element
       
-      // If significant movement, mark as dragging (scrolling)
-      if (deltaY > 10 || deltaX > 10) {
-        isDragging = true;
+      // Store touch information
+      touchStartY = e.touches[0].clientY;
+      touchStartX = e.touches[0].clientX;
+      touchStartTime = Date.now();
+      touchStartTarget = service;
+      isDragging = false;
+    }, { passive: true });
+    
+    // Touch move handler with delegation
+    servicesGrid.addEventListener('touchmove', (e) => {
+      if (!touchStartTarget) return; // No valid touch start
+      
+      if (!isDragging) {
+        const touchMoveY = e.touches[0].clientY;
+        const touchMoveX = e.touches[0].clientX;
+        const deltaY = Math.abs(touchMoveY - touchStartY);
+        const deltaX = Math.abs(touchMoveX - touchStartX);
+        
+        // If significant movement, mark as dragging (scrolling)
+        if (deltaY > 10 || deltaX > 10) {
+          isDragging = true;
+        }
       }
-    }
-  }, { passive: true });
-  
-  // Touch end handler with delegation
-  servicesGrid.addEventListener('touchend', (e) => {
-    // Exit if no touch start was recorded
-    if (!touchStartTarget) return;
+    }, { passive: true });
     
-    const touchEndTime = Date.now();
-    const touchDuration = touchEndTime - touchStartTime;
-    const touchEndY = e.changedTouches[0].clientY;
-    const touchEndX = e.changedTouches[0].clientX;
-    const deltaY = Math.abs(touchEndY - touchStartY);
-    const deltaX = Math.abs(touchEndX - touchStartX);
-    
-    // Only open the modal if:
-    // 1. Not dragging AND
-    // 2. Movement is small AND
-    // 3. Touch was brief (like a tap)
-    if (!isDragging && deltaY < 20 && deltaX < 20 && touchDuration < 300) {
-      const service = touchStartTarget;
+    // Touch end handler with delegation
+    servicesGrid.addEventListener('touchend', (e) => {
+      // Exit if no touch start was recorded
+      if (!touchStartTarget) return;
       
-      // Get service data
+      const touchEndTime = Date.now();
+      const touchDuration = touchEndTime - touchStartTime;
+      const touchEndY = e.changedTouches[0].clientY;
+      const touchEndX = e.changedTouches[0].clientX;
+      const deltaY = Math.abs(touchEndY - touchStartY);
+      const deltaX = Math.abs(touchEndX - touchStartX);
+      
+      // Only open the modal if:
+      // 1. Not dragging AND
+      // 2. Movement is small AND
+      // 3. Touch was brief (like a tap)
+      if (!isDragging && deltaY < 20 && deltaX < 20 && touchDuration < 300) {
+        const service = touchStartTarget;
+        
+        // Get service data
+        const title = service.querySelector('h3').textContent;
+        const icon = service.querySelector('i').className;
+        
+        // Determine service type based on its order
+        let serviceType = 'primary';
+        // Find the index of the clicked service among its siblings
+        const serviceIndex = Array.from(services).indexOf(service);
+        if (serviceIndex % 2 !== 0) {
+          serviceType = 'secondary';
+        }
+        
+        // Show modal with service details
+        showServiceModal(title, icon, getServiceContent(title), serviceType);
+      }
+      
+      // Reset touch tracking
+      touchStartTarget = null;
+    }, { passive: true });
+    
+    // Click handler with delegation (for desktop)
+    servicesGrid.addEventListener('click', (e) => {
+      // Find if a service element was clicked
+      const service = e.target.closest('.service');
+      if (!service || isMobile) return; // Not a service or on mobile
+      
       const title = service.querySelector('h3').textContent;
       const icon = service.querySelector('i').className;
       
@@ -1131,58 +1161,43 @@ function initServiceModals() {
         serviceType = 'secondary';
       }
       
-      // Show modal with service details
       showServiceModal(title, icon, getServiceContent(title), serviceType);
-    }
-    
-    // Reset touch tracking
-    touchStartTarget = null;
-  }, { passive: true });
-  
-  // Click handler with delegation (for desktop)
-  servicesGrid.addEventListener('click', (e) => {
-    // Find if a service element was clicked
-    const service = e.target.closest('.service');
-    if (!service || isMobile) return; // Not a service or on mobile
-    
-    const title = service.querySelector('h3').textContent;
-    const icon = service.querySelector('i').className;
-    
-    // Determine service type based on its order
-    let serviceType = 'primary';
-    // Find the index of the clicked service among its siblings
-    const serviceIndex = Array.from(services).indexOf(service);
-    if (serviceIndex % 2 !== 0) {
-      serviceType = 'secondary';
-    }
-    
-    showServiceModal(title, icon, getServiceContent(title), serviceType);
-  });
-  
-  // Add event delegation for footer service links
-  const footerServiceCol = utils.get('.footer-col:nth-child(2)');
-  if (footerServiceCol) {
-    footerServiceCol.addEventListener('click', (e) => {
-      // Find if a link was clicked
-      const link = e.target.closest('a');
-      if (!link) return; // Not a link
-      
-      e.preventDefault();
-      
-      const serviceTitle = link.textContent.trim();
-      
-      // Find index in parent to determine type
-      const links = footerServiceCol.querySelectorAll('a');
-      const linkIndex = Array.from(links).indexOf(link);
-      const serviceType = linkIndex % 2 === 0 ? 'primary' : 'secondary';
-      
-      const iconClass = getIconClassForService(serviceTitle);
-      
-      showServiceModal(serviceTitle, iconClass, getServiceContent(serviceTitle), serviceType);
     });
   }
   
-  // The rest of the function remains the same
+  // *** COMPLETELY REWRITTEN FOOTER SERVICE LINKS HANDLING ***
+  // Direct event listeners for each footer service link rather than delegation
+  const footerServiceLinks = utils.getAll('.footer-col:nth-child(2) a');
+  if (footerServiceLinks && footerServiceLinks.length) {
+    // Handle each footer service link directly
+    footerServiceLinks.forEach((link, index) => {
+      // Remove any existing listeners to avoid duplicates
+      const newLink = link.cloneNode(true);
+      link.parentNode.replaceChild(newLink, link);
+      
+      // Add direct click listener to the link
+      newLink.addEventListener('click', function(e) {
+        // Prevent default navigation to services section
+        e.preventDefault();
+        e.stopPropagation(); // Stop event bubbling
+        
+        // Get service title from link text
+        const serviceTitle = this.textContent.trim();
+        
+        // Determine service type based on link index
+        const serviceType = index % 2 === 0 ? 'primary' : 'secondary';
+        
+        // Get appropriate icon for this service
+        const iconClass = getIconClassForService(serviceTitle);
+        
+        // Show the modal for this service
+        showServiceModal(serviceTitle, iconClass, getServiceContent(serviceTitle), serviceType);
+        
+        // Return false for older browsers
+        return false;
+      });
+    });
+  }
   
   // Helper function to get icon class based on service title
   function getIconClassForService(title) {
@@ -1198,7 +1213,7 @@ function initServiceModals() {
     return iconMap[title] || 'fas fa-briefcase';
   }
   
-  // Function to show the modal - unchanged from original
+  // Function to show the modal
   function showServiceModal(title, iconClass, content, type = 'primary') {
     // Create modal HTML
     const modalHTML = `
@@ -1281,7 +1296,7 @@ function initServiceModals() {
     }
   }
   
-  // Keep the existing getServiceContent function - unchanged
+  // Keep the existing getServiceContent function
   function getServiceContent(serviceTitle) {
     const serviceContents = {
       'Projektledning': `
