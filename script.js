@@ -201,8 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Navigation tracking
   initSectionTracking();
   fixHeroButtonNavigation();
-
-  initThemeToggle();
   
   // Mobile-specific enhancements
   if (isMobile) {
@@ -1161,42 +1159,28 @@ function initServiceModals() {
     showServiceModal(title, icon, getServiceContent(title), serviceType);
   });
   
-// Add event delegation for footer service links
-const footerServiceCol = utils.get('.footer-col:nth-child(2)');
-if (footerServiceCol) {
-  footerServiceCol.addEventListener('click', (e) => {
-    // Find if a link was clicked
-    const link = e.target.closest('a');
-    if (!link) return; // Not a link
-    
-    // Critical fix: Prevent default behavior AND stop propagation
-    e.preventDefault();
-    e.stopPropagation(); // This prevents any parent handlers from triggering
-    
-    const serviceTitle = link.textContent.trim();
-    
-    // Find index in parent to determine type
-    const links = footerServiceCol.querySelectorAll('a');
-    const linkIndex = Array.from(links).indexOf(link);
-    const serviceType = linkIndex % 2 === 0 ? 'primary' : 'secondary';
-    
-    const iconClass = getIconClassForService(serviceTitle);
-    
-    // Fix: Remove any existing href attribute temporarily to prevent scrolling
-    const originalHref = link.getAttribute('href');
-    link.removeAttribute('href');
-    
-    // Show modal with service details
-    showServiceModal(serviceTitle, iconClass, getServiceContent(serviceTitle), serviceType);
-    
-    // Restore href after a brief delay
-    setTimeout(() => {
-      if (originalHref) {
-        link.setAttribute('href', originalHref);
-      }
-    }, 100);
-  });
-}
+  // Add event delegation for footer service links
+  const footerServiceCol = utils.get('.footer-col:nth-child(2)');
+  if (footerServiceCol) {
+    footerServiceCol.addEventListener('click', (e) => {
+      // Find if a link was clicked
+      const link = e.target.closest('a');
+      if (!link) return; // Not a link
+      
+      e.preventDefault();
+      
+      const serviceTitle = link.textContent.trim();
+      
+      // Find index in parent to determine type
+      const links = footerServiceCol.querySelectorAll('a');
+      const linkIndex = Array.from(links).indexOf(link);
+      const serviceType = linkIndex % 2 === 0 ? 'primary' : 'secondary';
+      
+      const iconClass = getIconClassForService(serviceTitle);
+      
+      showServiceModal(serviceTitle, iconClass, getServiceContent(serviceTitle), serviceType);
+    });
+  }
   
   // The rest of the function remains the same
   
@@ -1425,42 +1409,6 @@ function initLogoAnimation() {
       particle.style.left = `${x}px`;
       particle.style.top = `${y}px`;
     });
-  });
-}
-
-function initThemeToggle() {
-  const toggleBtn = document.getElementById('theme-toggle-btn');
-  
-  if (!toggleBtn) return;
-  
-  // Check for saved theme preference or use device preference
-  const savedTheme = localStorage.getItem('theme');
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  
-  // Set initial theme
-  if (savedTheme) {
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    if (savedTheme === 'dark') {
-      document.body.classList.add('dark-theme');
-    }
-  } else if (prefersDark) {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    document.body.classList.add('dark-theme');
-  }
-  
-  // Toggle theme on button click
-  toggleBtn.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-    
-    if (newTheme === 'dark') {
-      document.body.classList.add('dark-theme');
-    } else {
-      document.body.classList.remove('dark-theme');
-    }
   });
 }
 
