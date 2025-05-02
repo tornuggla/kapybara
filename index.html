@@ -58,353 +58,333 @@
   <!-- Critical CSS inline -->
   <style>
     /* Critical CSS - essential rendering styles */
-  :root {
-    --dark: #1a1b21;
-    --light: #ffffff;
-    --accent: #e85c42;
-    --secondary-accent: #4a8b9f;
-    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  }
-  
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  html {
-    font-size: 17px;
-    scroll-behavior: smooth;
-  }
-  
-  body {
-    font-family: 'Raleway', sans-serif;
-    color: var(--dark);
-    background-color: var(--light);
-    line-height: 1.8;
-    /* Remove opacity and animation for faster initial render */
-    opacity: 1;
-    font-weight: 400;
-    font-size: 1.0625rem;
-  }
-  
-  .container {
-    max-width: 1200px;
-    padding: 0 2rem;
-    margin: 0 auto;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Playfair Display', serif;
-    line-height: 1.3;
-    letter-spacing: -0.02em;
-    font-weight: 700;
-    margin-bottom: 1.25rem;
-  }
-  
-  h1 {
-    font-size: 3.75rem;
-    font-weight: 800;
-    letter-spacing: -0.03em;
-  }
-  
-  p {
-    margin-bottom: 1.25rem;
-    line-height: 1.8;
-  }
-  
-  a {
-    color: var(--accent);
-    text-decoration: none;
-    transition: var(--transition);
-    position: relative;
-  }
-  
-  /* Navigation - critical for initial viewport */
-  nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem 2rem;
-    background: transparent;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    transition: var(--transition);
-  }
-  
-  nav.scrolled {
-    background: var(--dark);
-    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-    padding: 1rem 2rem;
-  }
-  
-  .logo a {
-    position: relative;
-    display: inline-block;
-    padding: 0;
-    text-decoration: none;
-    font-family: 'Playfair Display', serif;
-    font-weight: bold;
-    font-size: 1.5rem;
-    color: var(--light);
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-  
-  .nav-links {
-    list-style: none;
-    display: flex;
-    gap: 2.5rem;
-  }
-  
-  .nav-links a {
-    text-decoration: none;
-    color: var(--light);
-    font-weight: 500;
-    transition: var(--transition);
-    position: relative;
-    padding: 0.5rem 0;
-    font-size: 0.875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  
-  /* Hero section - critical for initial viewport */
-  .hero {
-    position: relative;
-    overflow: hidden;
-    z-index: 1;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 0;
-    margin: 0;
-    height: 100vh;
-    box-sizing: border-box;
-  }
-  
-  .hero-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 130%;
-    z-index: -1;
-    background: linear-gradient(135deg, #2c3e50 0%, #4a5f72 40%, var(--accent) 100%);
-    overflow: hidden;
-  }
-  
-  .hero-content {
-    position: relative;
-    z-index: 2;
-    text-align: center;
-    max-width: 800px;
-    margin: 0 auto;
-    color: var(--light);
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    align-items: center;
-    padding-top: 4rem;
-    padding-bottom: 2rem;
-  }
-  
-  .hero h1 {
-    font-size: clamp(2.5rem, 5vw, 4rem);
-    margin-bottom: 0.5rem;
-    /* Remove animation for initial paint */
-    opacity: 1;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .hero p {
-    font-size: clamp(1.1rem, 3vw, 1.3rem);
-    margin-bottom: 1rem;
-    max-width: 700px;
-    margin-left: auto;
-    margin-right: auto;
-    /* Remove animation for initial paint */
-    opacity: 1;
-    font-weight: 300;
-    line-height: 1.6;
-  }
-  
-  /* Button - critical for calls to action */
-  .btn {
-    padding: 1rem 2.5rem;
-    border: none;
-    color: var(--light);
-    background: linear-gradient(135deg, var(--accent) 0%, #ff6e5a 100%);
-    border-radius: 50px;
-    text-decoration: none;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    font-size: 0.9375rem;
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    box-shadow: 0 8px 15px rgba(255, 119, 94, 0.2);
-    position: relative;
-    overflow: hidden;
-    z-index: 1;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 3.5rem;
-    /* Remove animation for initial paint */
-    opacity: 1;
-  }
-  
-  .btn-secondary {
-    background: linear-gradient(135deg, var(--secondary-accent) 0%, #5da1b5 100%);
-    box-shadow: 0 8px 15px rgba(93, 158, 179, 0.2);
-  }
-  
-  .btn i {
-    margin-right: 0.5rem;
-    font-size: 1.1em;
-  }
-  
-  /* Hamburger - critical for mobile navigation */
-  .hamburger {
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-    cursor: pointer;
-    z-index: 1001;
-    background: rgba(30, 31, 38, 0.5);
-    backdrop-filter: blur(10px);
-    border: none;
-    padding: 12px;
-    border-radius: 6px;
-    width: 45px;
-    height: 45px;
-    transition: var(--transition);
-  }
-  
-  .hamburger span {
-    width: 24px;
-    height: 2px;
-    background: var(--light);
-    border-radius: 2px;
-    transition: var(--transition);
-    margin-bottom: 3px;
-  }
-  
-  /* Mobile specific optimizations */
-  @media (max-width: 768px) {
-    .container {
-      padding: 0 1.5rem;
+    :root {
+      --dark: #1a1b21;
+      --light: #ffffff;
+      --accent: #e85c42;
+      --secondary-accent: #4a8b9f;
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html {
+      font-size: 17px;
+      scroll-behavior: smooth;
     }
     
     body {
-      font-size: 16px;
+      font-family: 'Raleway', sans-serif;
+      color: var(--dark);
+      background-color: var(--light);
+      line-height: 1.8;
+      opacity: 0;
+      animation: fadeInBody 0.8s ease forwards;
+      font-weight: 400;
+      font-size: 1.0625rem;
+    }
+    
+    .container {
+      max-width: 1200px;
+      padding: 0 2rem;
+      margin: 0 auto;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Playfair Display', serif;
+      line-height: 1.3;
+      letter-spacing: -0.02em;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
     }
     
     h1 {
-      font-size: clamp(2rem, 8vw, 2.8rem);
+      font-size: 3.75rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
     }
     
-    .hero {
-      padding: 7rem 1rem 5rem;
-      min-height: 85vh;
+    p {
+      margin-bottom: 1.25rem;
+      line-height: 1.8;
     }
     
-    .hero-content {
-      padding: 0 1rem;
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: var(--transition);
+      position: relative;
     }
     
-    .hero p {
-      font-size: 1rem;
-    }
-    
-    .hamburger {
+    /* Navigation - critical for initial viewport */
+    nav {
       display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 2rem;
+      background: transparent;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      transition: var(--transition);
+    }
+    
+    nav.scrolled {
+      background: var(--dark);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      padding: 1rem 2rem;
+    }
+    
+    .logo a {
+      position: relative;
+      display: inline-block;
+      padding: 0;
+      text-decoration: none;
+      font-family: 'Playfair Display', serif;
+      font-weight: bold;
+      font-size: 1.5rem;
+      color: var(--light);
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     
     .nav-links {
-      position: fixed;
-      flex-direction: column;
-      background: var(--dark);
-      top: 0;
-      right: -100%;
-      width: 75%;
-      height: 100vh;
-      padding: 100px 2rem 2rem;
-      transition: right 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.15);
-      z-index: 999;
-    }
-    
-    .nav-links.active {
-      right: 0;
-    }
-    
-    .nav-links li {
-      margin: 0;
-      width: 100%;
+      list-style: none;
+      display: flex;
+      gap: 2.5rem;
     }
     
     .nav-links a {
-      font-size: 1.2rem;
-      display: block;
-      padding: 18px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      width: 100%;
+      text-decoration: none;
+      color: var(--light);
+      font-weight: 500;
+      transition: var(--transition);
+      position: relative;
+      padding: 0.5rem 0;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     
-    /* Hero buttons layout for mobile */
-    .hero-buttons {
+    /* Hero section - critical for initial viewport */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
       flex-direction: column;
-      width: 100%;
-      max-width: 280px;
-      margin: 1.5rem auto 0;
-      gap: 1rem;
+      justify-content: center;
+      align-items: center;
+      padding: 0;
+      margin: 0;
+      height: 100vh;
+      box-sizing: border-box;
     }
     
-    .hero-buttons .btn {
+    .hero-background {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
+      height: 130%;
+      z-index: -1;
+      background: linear-gradient(135deg, #2c3e50 0%, #4a5f72 40%, var(--accent) 100%);
+      overflow: hidden;
     }
-  }
-  
-  /* Connection-aware styles */
-  .reduced-motion * {
-    transition-duration: 0.001ms !important;
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-  }
-  
-  /* Essential animations - simplified for speed */
-  @keyframes fadeInBody {
-    to { opacity: 1; }
-  }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(40px);
+    
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto;
+      color: var(--light);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      align-items: center;
+      padding-top: 4rem;
+      padding-bottom: 2rem;
     }
-    to {
+    
+    .hero h1 {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      margin-bottom: 0.5rem;
+      animation: none;
       opacity: 1;
-      transform: translateY(0);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
-  }
-  
-  /* Tap highlight removal for mobile */
-  a, button, .service, .nav-links a, .social-links a, .logo a {
-    -webkit-tap-highlight-color: transparent;
-  }
+    
+    .hero p {
+      font-size: clamp(1.1rem, 3vw, 1.3rem);
+      margin-bottom: 1rem;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      animation: slideUp 1s cubic-bezier(0.19, 1, 0.22, 1) 0.2s forwards;
+      opacity: 0;
+      font-weight: 300;
+      line-height: 1.6;
+    }
+    
+    /* Button - critical for calls to action */
+    .btn {
+      padding: 1rem 2.5rem;
+      border: none;
+      color: var(--light);
+      background: linear-gradient(135deg, var(--accent) 0%, #ff6e5a 100%);
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-size: 0.9375rem;
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      box-shadow: 0 8px 15px rgba(255, 119, 94, 0.2);
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 3.5rem;
+      opacity: 0;
+      animation: fadeIn 1s ease 0.4s forwards;
+    }
+    
+    .btn-secondary {
+      background: linear-gradient(135deg, var(--secondary-accent) 0%, #5da1b5 100%);
+      box-shadow: 0 8px 15px rgba(93, 158, 179, 0.2);
+    }
+    
+    .btn i {
+      margin-right: 0.5rem;
+      font-size: 1.1em;
+    }
+    
+    /* Hamburger - critical for mobile navigation */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      z-index: 1001;
+      background: rgba(30, 31, 38, 0.5);
+      backdrop-filter: blur(10px);
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      width: 45px;
+      height: 45px;
+      transition: var(--transition);
+    }
+    
+    .hamburger span {
+      width: 24px;
+      height: 2px;
+      background: var(--light);
+      border-radius: 2px;
+      transition: var(--transition);
+      margin-bottom: 3px;
+    }
+    
+    /* Essential animations */
+    @keyframes fadeInBody {
+      to { opacity: 1; }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Mobile responsive adjustments - critical for viewport sizing */
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 1.5rem;
+      }
+      
+      body {
+        font-size: 16px;
+      }
+      
+      h1 {
+        font-size: clamp(2rem, 8vw, 2.8rem);
+      }
+      
+      .hero {
+        padding: 7rem 1rem 5rem;
+        min-height: 85vh;
+      }
+      
+      .hamburger {
+        display: flex;
+      }
+      
+      .nav-links {
+        position: fixed;
+        flex-direction: column;
+        background: var(--dark);
+        top: 0;
+        right: -100%;
+        width: 75%;
+        height: 100vh;
+        padding: 100px 2rem 2rem;
+        transition: right 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.15);
+        z-index: 999;
+      }
+      
+      .nav-links.active {
+        right: 0;
+      }
+      
+      .nav-links li {
+        margin: 0;
+        width: 100%;
+      }
+      
+      .nav-links a {
+        font-size: 1.2rem;
+        display: block;
+        padding: 18px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        width: 100%;
+      }
+    }
   </style>
   
   <!-- Main CSS with non-render blocking loading -->
